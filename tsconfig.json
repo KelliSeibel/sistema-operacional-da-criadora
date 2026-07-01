@@ -1,0 +1,6 @@
+{
+  "name": "Sistema Operacional da Criadora",
+  "description": "Workspace completo para gerenciamento de projetos, produtos UGC, ideias, roteiros, estudos e organização estratégica do Segundo Cérebro.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
