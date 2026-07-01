@@ -11,7 +11,8 @@ import Dashboard from './components/Dashboard';
 import DatabaseView from './components/DatabaseView';
 import PageView from './components/PageView';
 import ItemModal from './components/ItemModal';
-import { Search, ChevronRight, X } from 'lucide-react';
+import { Search, ChevronRight, X, Menu, Download } from 'lucide-react';
+import { motion, AnimatePresence } from 'motion/react';
 
 export default function App() {
   // Load state from localStorage or default to INITIAL_STATE
@@ -31,6 +32,53 @@ export default function App() {
   const [currentView, setCurrentView] = useState<string>('dashboard');
   const [selectedPageId, setSelectedPageId] = useState<string | null>('pag-ugc');
   const [globalSearchQuery, setGlobalSearchQuery] = useState('');
+
+  // Mobile UI States
+  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
+
+  // PWA Installation States
+  const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
+  const [showInstallBtn, setShowInstallBtn] = useState(false);
+
+  useEffect(() => {
+    const handleBeforeInstallPrompt = (e: Event) => {
+      e.preventDefault();
+      setDeferredPrompt(e);
+      setShowInstallBtn(true);
+    };
+
+    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+
+    // Check standalone mode
+    if (window.matchMedia('(display-mode: standalone)').matches || (window.navigator as any).standalone) {
+      setShowInstallBtn(false);
+    }
+
+    return () => {
+      window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+    };
+  }, []);
+
+  const handleInstallClick = async () => {
+    if (!deferredPrompt) return;
+    deferredPrompt.prompt();
+    const { outcome } = await deferredPrompt.userChoice;
+    console.log(`PWA Installation Choice: ${outcome}`);
+    setDeferredPrompt(null);
+    setShowInstallBtn(false);
+  };
+
+  // Navigation Wrappers to auto-close Drawer
+  const handleViewChange = (view: string) => {
+    setCurrentView(view);
+    setGlobalSearchQuery('');
+    setIsMobileSidebarOpen(false);
+  };
+
+  const handlePageSelect = (id: string) => {
+    setSelectedPageId(id);
+    setIsMobileSidebarOpen(false);
+  };
   
   // Modal drawer state
   const [activeModal, setActiveModal] = useState<{ dbId: string; itemId: string } | null>(null);
@@ -370,23 +418,105 @@ export default function App() {
 
   return (
     <div className="flex h-screen bg-white select-none overflow-hidden font-sans">
-      {/* Sidebar Navigation */}
-      <Sidebar
-        currentView={currentView}
-        onViewChange={(view) => {
-          setCurrentView(view);
-          setGlobalSearchQuery('');
-        }}
-        selectedPageId={selectedPageId}
-        onPageSelect={setSelectedPageId}
-        paginasFixas={state.paginasFixas}
-        globalSearchQuery={globalSearchQuery}
-        onGlobalSearchChange={setGlobalSearchQuery}
-        onAddNewItem={handleAddNewItem}
-      />
+      {/* Desktop Sidebar Navigation */}
+      <div className="hidden md:flex shrink-0">
+        <Sidebar
+          currentView={currentView}
+          onViewChange={handleViewChange}
+          selectedPageId={selectedPageId}
+          onPageSelect={handlePageSelect}
+          paginasFixas={state.paginasFixas}
+          globalSearchQuery={globalSearchQuery}
+          onGlobalSearchChange={setGlobalSearchQuery}
+          onAddNewItem={handleAddNewItem}
+          showInstallBtn={showInstallBtn}
+          onInstall={handleInstallClick}
+        />
+      </div>
+
+      {/* Mobile Drawer Slide Navigation */}
+      <AnimatePresence>
+        {isMobileSidebarOpen && (
+          <>
+            {/* Backdrop overlay */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setIsMobileSidebarOpen(false)}
+              className="fixed inset-0 bg-black/50 backdrop-blur-[1px] z-40 md:hidden"
+            />
+
+            {/* Sliding Aside Panel */}
+            <motion.div
+              initial={{ x: '-100%' }}
+              animate={{ x: 0 }}
+              exit={{ x: '-100%' }}
+              transition={{ type: 'spring', damping: 25, stiffness: 220 }}
+              className="fixed inset-y-0 left-0 w-[80vw] max-w-[290px] bg-white z-50 shadow-2xl flex flex-col md:hidden overflow-hidden"
+            >
+              {/* Close Drawer Button */}
+              <button
+                onClick={() => setIsMobileSidebarOpen(false)}
+                className="absolute top-4 right-4 p-2 text-gray-400 hover:text-gray-700 hover:bg-gray-100 rounded-xl transition-all cursor-pointer z-50"
+              >
+                <X className="h-5 w-5" />
+              </button>
+
+              <div className="flex-grow h-full overflow-hidden">
+                <Sidebar
+                  currentView={currentView}
+                  onViewChange={handleViewChange}
+                  selectedPageId={selectedPageId}
+                  onPageSelect={handlePageSelect}
+                  paginasFixas={state.paginasFixas}
+                  globalSearchQuery={globalSearchQuery}
+                  onGlobalSearchChange={setGlobalSearchQuery}
+                  onAddNewItem={handleAddNewItem}
+                  showInstallBtn={showInstallBtn}
+                  onInstall={handleInstallClick}
+                />
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
 
       {/* Main Panel Frame */}
       <main className="flex-1 flex flex-col h-screen overflow-hidden relative bg-white">
+        
+        {/* Mobile App Bar Header */}
+        <header className="md:hidden flex items-center justify-between px-4 h-14 bg-white border-b border-gray-100 shrink-0 select-none">
+          <div className="flex items-center space-x-3">
+            <button
+              onClick={() => setIsMobileSidebarOpen(true)}
+              className="p-2 -ml-1.5 text-gray-600 hover:text-gray-900 active:bg-gray-100 rounded-xl transition-all cursor-pointer"
+              aria-label="Abrir menu"
+            >
+              <Menu className="h-6 w-6" />
+            </button>
+            <span className="font-extrabold text-gray-900 text-sm tracking-tight">
+              {currentView === 'dashboard' 
+                ? '👸 Criadora OS' 
+                : currentView === 'paginaFixa' 
+                  ? `📄 ${activePage?.titulo || 'Diretrizes'}` 
+                  : `🗄️ ${currentView.charAt(0).toUpperCase() + currentView.slice(1)}`}
+            </span>
+          </div>
+
+          <div className="flex items-center space-x-2">
+            {showInstallBtn && (
+              <button
+                onClick={handleInstallClick}
+                className="flex items-center space-x-1 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 px-2.5 py-1.5 rounded-lg text-[10px] font-bold active:scale-95 transition-all cursor-pointer"
+                title="Instalar aplicativo"
+              >
+                <Download className="h-3.5 w-3.5" />
+                <span>Instalar</span>
+              </button>
+            )}
+          </div>
+        </header>
         
         {/* Global Search Results Overlay */}
         {globalSearchQuery.trim() !== '' && (

@@ -181,22 +181,22 @@ export default function PageView({ pagina, onPageUpdate }: PageViewProps) {
   };
 
   return (
-    <div className="flex flex-col h-full bg-white select-text">
+    <div className="flex flex-col h-full bg-white select-text scrollbar-thin">
       {/* Page Header Cover */}
-      <div className="h-44 w-full bg-gradient-to-r from-indigo-100 via-rose-100 to-amber-100 relative shrink-0">
+      <div className="h-32 md:h-44 w-full bg-gradient-to-r from-indigo-100 via-rose-100 to-amber-100 relative shrink-0">
         <div className="absolute inset-0 bg-white/20 backdrop-blur-[1px]" />
-        <div className="absolute -bottom-8 left-12 w-16 h-16 bg-white rounded-2xl shadow-md border border-gray-100 flex items-center justify-center text-3xl">
+        <div className="absolute -bottom-6 left-4 md:-bottom-8 md:left-12 w-12 h-12 md:w-16 md:h-16 bg-white rounded-xl md:rounded-2xl shadow-md border border-gray-100 flex items-center justify-center text-2xl md:text-3xl">
           {pagina.categoria === 'Manual' ? '📕' : pagina.categoria === 'Checklist' ? '✅' : '⚙️'}
         </div>
       </div>
 
       {/* Control Actions Panel */}
-      <div className="mt-12 px-12 pb-4 flex items-center justify-between border-b border-gray-100 shrink-0">
+      <div className="mt-8 md:mt-12 px-4 md:px-12 pb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-b border-gray-100 shrink-0">
         <div className="flex items-center space-x-2">
-          <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-indigo-50 text-indigo-700 border border-indigo-100">
+          <span className="px-2.5 py-0.5 rounded-full text-[10px] md:text-xs font-semibold bg-indigo-50 text-indigo-700 border border-indigo-100">
             {pagina.categoria}
           </span>
-          <span className="text-xs text-gray-400">• Página Estática de Documentação</span>
+          <span className="text-[10px] md:text-xs text-gray-400">• Central de Conhecimento</span>
         </div>
 
         <button
@@ -207,7 +207,7 @@ export default function PageView({ pagina, onPageUpdate }: PageViewProps) {
               setIsEditing(true);
             }
           }}
-          className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-xs font-medium border transition-all ${
+          className={`flex items-center justify-center space-x-1.5 px-3 py-1.8 rounded-lg text-xs font-medium border transition-all active:scale-95 w-full sm:w-auto cursor-pointer ${
             isEditing
               ? 'bg-emerald-600 hover:bg-emerald-700 text-white border-emerald-600 shadow-sm'
               : 'bg-white hover:bg-gray-50 text-gray-700 border-gray-200'
@@ -228,7 +228,7 @@ export default function PageView({ pagina, onPageUpdate }: PageViewProps) {
       </div>
 
       {/* Main Content Workspace */}
-      <div className="flex-1 overflow-y-auto px-12 py-8 max-w-4xl w-full mx-auto pb-24">
+      <div className="flex-1 overflow-y-auto px-4 md:px-12 py-6 md:py-8 max-w-4xl w-full mx-auto pb-24">
         {isEditing ? (
           <div className="space-y-4 h-full flex flex-col">
             <div>

@@ -24,7 +24,8 @@ import {
   ClipboardList, 
   Search, 
   Plus, 
-  Tv
+  Tv,
+  Download
 } from 'lucide-react';
 import { PaginaFixa } from '../types';
 
@@ -37,6 +38,8 @@ interface SidebarProps {
   globalSearchQuery: string;
   onGlobalSearchChange: (query: string) => void;
   onAddNewItem: (dbName: string) => void;
+  showInstallBtn?: boolean;
+  onInstall?: () => void;
 }
 
 export default function Sidebar({
@@ -47,7 +50,9 @@ export default function Sidebar({
   paginasFixas,
   globalSearchQuery,
   onGlobalSearchChange,
-  onAddNewItem
+  onAddNewItem,
+  showInstallBtn,
+  onInstall
 }: SidebarProps) {
   const [dbsExpanded, setDbsExpanded] = useState(true);
   const [pagesExpanded, setPagesExpanded] = useState(true);
@@ -83,7 +88,7 @@ export default function Sidebar({
   };
 
   return (
-    <aside className="w-64 border-r border-gray-200 bg-gray-50 flex flex-col h-screen shrink-0 select-none font-sans">
+    <aside className="w-full md:w-64 border-r border-gray-200 bg-gray-50 flex flex-col h-full md:h-screen shrink-0 select-none font-sans">
       {/* Workspace Header */}
       <div className="p-4 border-b border-gray-200 flex items-center justify-between">
         <div className="flex items-center space-x-3 cursor-pointer" onClick={() => onViewChange('dashboard')}>
@@ -276,6 +281,18 @@ export default function Sidebar({
           )}
         </div>
       </div>
+
+      {showInstallBtn && onInstall && (
+        <div className="p-3 border-t border-gray-150 bg-indigo-50/50 shrink-0">
+          <button
+            onClick={onInstall}
+            className="w-full flex items-center justify-center space-x-1.5 px-3 py-2 bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white rounded-xl text-xs font-semibold shadow-sm transition-all cursor-pointer"
+          >
+            <Download className="h-4 w-4 shrink-0" />
+            <span>Instalar Aplicativo</span>
+          </button>
+        </div>
+      )}
 
       {/* User Info / Profile Banner */}
       <div className="p-3 border-t border-gray-200 bg-gray-100/50 flex items-center space-x-2.5">

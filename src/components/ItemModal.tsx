@@ -86,7 +86,7 @@ export default function ItemModal({
     <div className="fixed inset-0 bg-black/45 backdrop-blur-[2px] flex justify-end z-50 select-none animate-fade-in font-sans">
       
       {/* Modal Side Drawer */}
-      <div className="w-full max-w-2xl bg-white h-full shadow-2xl flex flex-col justify-between overflow-hidden select-text animate-slide-in">
+      <div className="w-full md:max-w-2xl bg-white h-full shadow-2xl flex flex-col justify-between overflow-hidden select-text animate-slide-in">
         
         {/* Header bar */}
         <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between shrink-0 bg-gray-50/50">

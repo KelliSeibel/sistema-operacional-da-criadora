@@ -335,33 +335,84 @@ export default function DatabaseView({
     }
 
     return (
-      <div className="overflow-x-auto border border-gray-100 rounded-2xl shadow-sm bg-white">
-        <table className="w-full text-left border-collapse text-xs">
-          <thead>
-            <tr className="bg-gray-50 border-b border-gray-100 font-bold text-gray-400 select-none">
-              {columns.map((col) => (
-                <th key={col.key} className="px-4 py-3 font-semibold uppercase tracking-wider text-[10px]">
-                  {col.label}
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-100">
-            {filteredItems.map((item) => (
-              <tr 
-                key={item.id} 
-                onClick={() => onOpenItemModal(dbId, item.id)}
-                className="hover:bg-indigo-50/25 transition-all cursor-pointer"
-              >
+      <div className="space-y-4">
+        {/* Table layout for desktop */}
+        <div className="hidden md:block overflow-x-auto border border-gray-100 rounded-2xl shadow-sm bg-white">
+          <table className="w-full text-left border-collapse text-xs">
+            <thead>
+              <tr className="bg-gray-50 border-b border-gray-100 font-bold text-gray-400 select-none">
                 {columns.map((col) => (
-                  <td key={col.key} className="px-4 py-3 text-gray-700">
-                    {col.render ? col.render(item[col.key], item) : item[col.key] || '-'}
-                  </td>
+                  <th key={col.key} className="px-4 py-3 font-semibold uppercase tracking-wider text-[10px]">
+                    {col.label}
+                  </th>
                 ))}
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody className="divide-y divide-gray-100">
+              {filteredItems.map((item) => (
+                <tr 
+                  key={item.id} 
+                  onClick={() => onOpenItemModal(dbId, item.id)}
+                  className="hover:bg-indigo-50/25 transition-all cursor-pointer"
+                >
+                  {columns.map((col) => (
+                    <td key={col.key} className="px-4 py-3 text-gray-700">
+                      {col.render ? col.render(item[col.key], item) : item[col.key] || '-'}
+                    </td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        {/* Card layout for mobile */}
+        <div className="block md:hidden space-y-3">
+          {filteredItems.map((item) => {
+            const cardTitle = item.nome || item.titulo || item.livro || item.meta || item.tarefa || item.gancho || item.desejo || 'Item sem nome';
+            return (
+              <div 
+                key={item.id}
+                onClick={() => onOpenItemModal(dbId, item.id)}
+                className="bg-white border border-gray-200 rounded-xl p-4 shadow-sm active:scale-[0.99] active:bg-gray-50 transition-all cursor-pointer"
+              >
+                <div className="flex justify-between items-center mb-2 border-b border-gray-100 pb-2">
+                  <span className="text-[10px] font-bold text-indigo-600 uppercase tracking-wider">
+                    {dbInfo.name}
+                  </span>
+                  {item.prioridade && renderPriorityBadge(item.prioridade)}
+                </div>
+                
+                <h4 className="font-bold text-gray-900 text-xs mb-2 leading-snug">
+                  {cardTitle}
+                </h4>
+
+                <div className="space-y-1.5">
+                  {columns.map((col) => {
+                    // Skip if key matches the titles we display prominently, or priority
+                    if (['prioridade', 'nome', 'titulo', 'livro', 'meta', 'tarefa', 'gancho', 'desejo'].includes(col.key)) return null;
+                    const label = col.label;
+                    const val = item[col.key];
+                    if (val === undefined || val === '') return null;
+                    return (
+                      <div key={col.key} className="flex justify-between items-baseline gap-2 text-[11px]">
+                        <span className="font-semibold text-gray-400 shrink-0">{label}:</span>
+                        <span className="text-gray-700 text-right truncate max-w-[70%] font-medium">
+                          {col.render ? col.render(val, item) : val}
+                        </span>
+                      </div>
+                    );
+                  })}
+                </div>
+
+                <div className="mt-3 pt-2 border-t border-gray-50 flex justify-end text-[10px] text-indigo-600 font-bold items-center">
+                  <span>Ver registro</span>
+                  <ChevronRight className="h-3 w-3 ml-0.5" />
+                </div>
+              </div>
+            );
+          })}
+        </div>
       </div>
     );
   };
@@ -433,11 +484,11 @@ export default function DatabaseView({
   // Kanban View Renderer
   const renderKanban = () => {
     return (
-      <div className="flex space-x-4 overflow-x-auto pb-4 select-none">
+      <div className="flex flex-col md:flex-row md:space-x-4 md:overflow-x-auto space-y-4 md:space-y-0 pb-4 select-none">
         {kanbanLanes.map((lane) => {
           const laneItems = groupedKanbanItems[lane] || [];
           return (
-            <div key={lane} className="w-72 shrink-0 bg-gray-50 rounded-2xl p-3 flex flex-col h-[550px]">
+            <div key={lane} className="w-full md:w-72 shrink-0 bg-gray-50 rounded-2xl p-3 flex flex-col h-[550px]">
               <div className="flex items-center justify-between mb-3 px-1">
                 <div className="flex items-center space-x-1.5">
                   <span className="h-2 w-2 rounded-full bg-indigo-600" />
@@ -590,18 +641,18 @@ export default function DatabaseView({
   };
 
   return (
-    <div className="flex-grow bg-white overflow-y-auto h-screen pb-24 px-8 select-none font-sans">
+    <div className="flex-grow bg-white overflow-y-auto h-screen pb-24 px-4 md:px-8 select-none font-sans scrollbar-thin">
       {/* DB Header section */}
-      <div className="py-6 border-b border-gray-100 flex flex-col md:flex-row md:items-center md:justify-between space-y-4 md:space-y-0 shrink-0">
+      <div className="py-4 md:py-6 border-b border-gray-100 flex flex-col md:flex-row md:items-center md:justify-between gap-4 shrink-0">
         <div className="flex items-start space-x-3.5">
-          <div className="w-12 h-12 rounded-2xl bg-indigo-50 border border-indigo-100 flex items-center justify-center text-2xl shadow-inner shrink-0">
+          <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl md:rounded-2xl bg-indigo-50 border border-indigo-100 flex items-center justify-center text-xl md:text-2xl shadow-inner shrink-0">
             {dbInfo.emoji}
           </div>
           <div>
-            <h1 className="text-xl font-extrabold text-gray-900 tracking-tight leading-tight">
+            <h1 className="text-lg md:text-xl font-extrabold text-gray-900 tracking-tight leading-tight">
               {dbInfo.name}
             </h1>
-            <p className="text-xs text-gray-400 mt-1 leading-normal max-w-xl">
+            <p className="text-[11px] md:text-xs text-gray-400 mt-0.5 md:mt-1 leading-normal max-w-xl">
               {dbInfo.desc}
             </p>
           </div>
@@ -610,7 +661,7 @@ export default function DatabaseView({
         {/* Quick Database Add Button */}
         <button
           onClick={() => onAddNewItem(dbId)}
-          className="flex items-center space-x-1.5 bg-indigo-600 hover:bg-indigo-700 text-white px-3.5 py-1.8 rounded-xl text-xs font-semibold shadow-sm hover:shadow transition-all cursor-pointer shrink-0"
+          className="flex items-center justify-center space-x-1.5 bg-indigo-600 hover:bg-indigo-700 text-white px-3.5 py-2 rounded-xl text-xs font-semibold shadow-sm hover:shadow transition-all active:scale-95 cursor-pointer shrink-0 w-full md:w-auto"
         >
           <Plus className="h-4 w-4" />
           <span>Novo Item</span>
@@ -618,10 +669,10 @@ export default function DatabaseView({
       </div>
 
       {/* Navigation Filter / Views Panel */}
-      <div className="my-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 bg-gray-50 p-2 rounded-2xl border border-gray-100 shrink-0">
+      <div className="my-3 md:my-4 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3 bg-gray-50 p-2 rounded-2xl border border-gray-100 shrink-0 overflow-hidden">
         
         {/* Toggle Visual Styles */}
-        <div className="flex items-center space-x-1">
+        <div className="flex items-center space-x-1 overflow-x-auto scrollbar-none pb-1 lg:pb-0 shrink-0 max-w-full">
           {[
             { type: 'tabela', label: 'Tabela', icon: Table },
             { type: 'galeria', label: 'Galeria', icon: LayoutGrid },
@@ -635,29 +686,29 @@ export default function DatabaseView({
               <button
                 key={v.type}
                 onClick={() => setViewType(v.type as DatabaseViewType)}
-                className={`flex items-center space-x-1 px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+                className={`flex items-center space-x-1 px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-all shrink-0 active:scale-95 cursor-pointer ${
                   isSelected 
                     ? 'bg-white text-indigo-700 shadow-sm' 
                     : 'text-gray-500 hover:bg-gray-100 hover:text-gray-900'
                 }`}
               >
                 <Icon className="h-3.5 w-3.5" />
-                <span>{v.label}</span>
+                <span className="whitespace-nowrap">{v.label}</span>
               </button>
             );
           })}
         </div>
 
         {/* Local Search and Filter Panel */}
-        <div className="flex items-center space-x-2">
-          <div className="relative">
+        <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap w-full lg:w-auto">
+          <div className="relative w-full sm:w-auto flex-1 sm:flex-initial">
             <Search className="absolute left-2.5 top-2 h-3.5 w-3.5 text-gray-400" />
             <input
               type="text"
               placeholder="Pesquisar nesta base..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-8 pr-3 py-1 bg-white border border-gray-200 rounded-lg text-xs placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-all w-44"
+              className="pl-8 pr-3 py-1.5 bg-white border border-gray-200 rounded-lg text-xs placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-all w-full sm:w-44"
             />
           </div>
 
@@ -666,7 +717,7 @@ export default function DatabaseView({
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              className="text-[10px] font-semibold text-gray-500 bg-white border border-gray-200 rounded-lg px-2 py-1.2 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+              className="text-[11px] font-semibold text-gray-500 bg-white border border-gray-200 rounded-lg px-2 py-1.5 focus:outline-none focus:ring-1 focus:ring-indigo-500 shrink-0"
             >
               <option value="Todos">Status (Todos)</option>
               {filterOptions.statuses.filter(s => s !== 'Todos').map(s => (
@@ -679,7 +730,7 @@ export default function DatabaseView({
             <select
               value={priorityFilter}
               onChange={(e) => setPriorityFilter(e.target.value)}
-              className="text-[10px] font-semibold text-gray-500 bg-white border border-gray-200 rounded-lg px-2 py-1.2 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+              className="text-[11px] font-semibold text-gray-500 bg-white border border-gray-200 rounded-lg px-2 py-1.5 focus:outline-none focus:ring-1 focus:ring-indigo-500 shrink-0"
             >
               <option value="Todos">Prioridade (Todos)</option>
               {filterOptions.priorities.filter(p => p !== 'Todos').map(p => (

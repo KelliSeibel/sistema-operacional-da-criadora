@@ -88,29 +88,29 @@ export default function Dashboard({
   };
 
   return (
-    <div className="flex-grow bg-white overflow-y-auto select-none h-screen pb-24 font-sans text-gray-800">
+    <div className="flex-grow bg-white overflow-y-auto select-none h-screen pb-24 font-sans text-gray-800 scrollbar-thin">
       {/* Cover Image Header */}
-      <div className="h-56 w-full bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 relative">
+      <div className="h-40 md:h-56 w-full bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 relative">
         <div className="absolute inset-0 bg-black/10 mix-blend-multiply" />
-        <div className="absolute bottom-6 left-8 right-8 flex flex-col md:flex-row md:items-end md:justify-between text-white">
-          <div className="flex items-center space-x-4">
-            <div className="w-20 h-20 rounded-2xl bg-white border-4 border-white/30 flex items-center justify-center text-4xl shadow-xl">
+        <div className="absolute bottom-4 left-4 right-4 md:bottom-6 md:left-8 md:right-8 flex flex-col md:flex-row md:items-end md:justify-between gap-3 text-white">
+          <div className="flex items-center space-x-3 md:space-x-4">
+            <div className="w-12 h-12 md:w-20 md:h-20 rounded-xl md:rounded-2xl bg-white border-2 md:border-4 border-white/30 flex items-center justify-center text-2xl md:text-4xl shadow-xl shrink-0">
               👸
             </div>
             <div>
-              <span className="text-[10px] uppercase tracking-widest font-bold bg-white/20 backdrop-blur-md px-2.5 py-1 rounded-full text-white border border-white/20">
+              <span className="text-[9px] md:text-[10px] uppercase tracking-widest font-bold bg-white/20 backdrop-blur-md px-2 py-0.5 md:px-2.5 md:py-1 rounded-full text-white border border-white/20">
                 Workspace Central
               </span>
-              <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight mt-1.5 drop-shadow-sm">
+              <h1 className="text-lg md:text-3xl font-extrabold tracking-tight mt-1 drop-shadow-sm leading-tight">
                 Sistema Operacional da Criadora
               </h1>
-              <p className="text-xs text-white/90 font-medium flex items-center mt-1">
+              <p className="text-[10px] md:text-xs text-white/90 font-medium flex items-center mt-0.5 md:mt-1">
                 <Calendar className="h-3.5 w-3.5 mr-1" />
                 {todayStr}
               </p>
             </div>
           </div>
-          <div className="mt-4 md:mt-0 bg-white/10 backdrop-blur-md border border-white/20 rounded-xl px-4 py-2.5 text-xs">
+          <div className="mt-2 md:mt-0 bg-white/10 backdrop-blur-md border border-white/20 rounded-xl p-2 md:px-4 md:py-2.5 text-[10px] md:text-xs">
             <span className="font-semibold block text-white">Status da Criadora:</span>
             <span className="text-white/80">📚 Focada no ENEM | 🧴 Gravando portfólio UGC</span>
           </div>
@@ -118,15 +118,15 @@ export default function Dashboard({
       </div>
 
       {/* Quick Access Actions */}
-      <div className="px-8 mt-6">
+      <div className="px-4 md:px-8 mt-4 md:mt-6">
         <div className="flex items-center space-x-2 text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">
           <Sparkles className="h-3.5 w-3.5 text-indigo-500" />
           <span>Ações Rápidas</span>
         </div>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
           <button 
             onClick={() => onAddNewItem('ideiasConteudo')}
-            className="flex items-center justify-between p-3 bg-indigo-50/50 hover:bg-indigo-50 border border-indigo-100/80 rounded-xl text-left transition-all group cursor-pointer"
+            className="flex items-center justify-between p-3 bg-indigo-50/50 hover:md:bg-indigo-50 border border-indigo-100/80 rounded-xl text-left transition-all active:scale-95 duration-150 group cursor-pointer"
           >
             <div className="flex items-center space-x-2.5">
               <span className="p-2 rounded-lg bg-indigo-100 text-indigo-700">
@@ -137,12 +137,12 @@ export default function Dashboard({
                 <p className="text-[10px] text-indigo-500">Adicionar ao banco</p>
               </div>
             </div>
-            <PlusCircle className="h-4 w-4 text-indigo-400 group-hover:text-indigo-600 transition-all shrink-0" />
+            <PlusCircle className="h-4 w-4 text-indigo-400 group-hover:md:text-indigo-600 transition-all shrink-0" />
           </button>
 
           <button 
             onClick={() => onAddNewItem('tarefas')}
-            className="flex items-center justify-between p-3 bg-emerald-50/50 hover:bg-emerald-50 border border-emerald-100/80 rounded-xl text-left transition-all group cursor-pointer"
+            className="flex items-center justify-between p-3 bg-emerald-50/50 hover:md:bg-emerald-50 border border-emerald-100/80 rounded-xl text-left transition-all active:scale-95 duration-150 group cursor-pointer"
           >
             <div className="flex items-center space-x-2.5">
               <span className="p-2 rounded-lg bg-emerald-100 text-emerald-700">
@@ -153,12 +153,12 @@ export default function Dashboard({
                 <p className="text-[10px] text-emerald-500">Listar afazer</p>
               </div>
             </div>
-            <PlusCircle className="h-4 w-4 text-emerald-400 group-hover:text-emerald-600 transition-all shrink-0" />
+            <PlusCircle className="h-4 w-4 text-emerald-400 group-hover:md:text-emerald-600 transition-all shrink-0" />
           </button>
 
           <button 
             onClick={() => onAddNewItem('roteiros')}
-            className="flex items-center justify-between p-3 bg-purple-50/50 hover:bg-purple-50 border border-purple-100/80 rounded-xl text-left transition-all group cursor-pointer"
+            className="flex items-center justify-between p-3 bg-purple-50/50 hover:md:bg-purple-50 border border-purple-100/80 rounded-xl text-left transition-all active:scale-95 duration-150 group cursor-pointer"
           >
             <div className="flex items-center space-x-2.5">
               <span className="p-2 rounded-lg bg-purple-100 text-purple-700">
@@ -169,12 +169,12 @@ export default function Dashboard({
                 <p className="text-[10px] text-purple-500">Escrever roteiro</p>
               </div>
             </div>
-            <PlusCircle className="h-4 w-4 text-purple-400 group-hover:text-purple-600 transition-all shrink-0" />
+            <PlusCircle className="h-4 w-4 text-purple-400 group-hover:md:text-purple-600 transition-all shrink-0" />
           </button>
 
           <button 
             onClick={() => onAddNewItem('produtosUgc')}
-            className="flex items-center justify-between p-3 bg-amber-50/50 hover:bg-amber-50 border border-amber-100/80 rounded-xl text-left transition-all group cursor-pointer"
+            className="flex items-center justify-between p-3 bg-amber-50/50 hover:md:bg-amber-50 border border-amber-100/80 rounded-xl text-left transition-all active:scale-95 duration-150 group cursor-pointer"
           >
             <div className="flex items-center space-x-2.5">
               <span className="p-2 rounded-lg bg-amber-100 text-amber-700">
@@ -185,13 +185,13 @@ export default function Dashboard({
                 <p className="text-[10px] text-amber-500">Cadastrar marca</p>
               </div>
             </div>
-            <PlusCircle className="h-4 w-4 text-amber-400 group-hover:text-amber-600 transition-all shrink-0" />
+            <PlusCircle className="h-4 w-4 text-amber-400 group-hover:md:text-amber-600 transition-all shrink-0" />
           </button>
         </div>
       </div>
 
       {/* Main Grid Content */}
-      <div className="px-8 mt-8 grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="px-4 md:px-8 mt-6 md:mt-8 grid grid-cols-1 lg:grid-cols-3 gap-6">
         
         {/* Left Column - Tasks & Active Projects (Span 2) */}
         <div className="lg:col-span-2 space-y-6">
