@@ -88,9 +88,6 @@ export default function DatabaseView({
     items.forEach(item => {
       if (item.status) statuses.add(item.status);
       if (item.statusLeitura) statuses.add(item.statusLeitura);
-      if (item.statusLeitura === undefined && item.status === undefined && item.prioridade === undefined) {
-        // Fallback for objects that don't have standard status
-      }
       if (item.prioridade) priorities.add(item.prioridade);
     });
     return {
@@ -150,7 +147,6 @@ export default function DatabaseView({
     if (dbId === 'metas') {
       return ['Não iniciada', 'Em andamento', 'Concluída'];
     }
-    // Default lanes if no status
     return ['Ativos'];
   }, [dbId]);
 
@@ -166,7 +162,6 @@ export default function DatabaseView({
       } else if (kanbanLanes.includes('Ativos')) {
         groups['Ativos'].push(item);
       } else {
-        // Fallback
         const defaultLane = kanbanLanes[0];
         if (groups[defaultLane]) groups[defaultLane].push(item);
       }
@@ -178,13 +173,28 @@ export default function DatabaseView({
   const renderPriorityBadge = (priority?: string) => {
     if (!priority) return null;
     const colors = {
-      'Alta': 'bg-rose-50 text-rose-700 border-rose-100',
-      'Média': 'bg-amber-50 text-amber-700 border-amber-100',
-      'Baixa': 'bg-blue-50 text-blue-700 border-blue-100'
+      'Alta': 'bg-brand-rose/10 text-brand-rose border-brand-rose/20',
+      'Média': 'bg-[#D6A6A6]/10 text-brand-dark border-[#D6A6A6]/20',
+      'Baixa': 'bg-brand-cream text-brand-rose-light border-brand-beige/30'
     };
     return (
-      <span className={`px-2 py-0.5 rounded text-[10px] font-bold border ${colors[priority as keyof typeof colors] || 'bg-gray-50 text-gray-700'}`}>
+      <span className={`px-2 py-0.5 rounded-lg text-[9px] font-bold border ${colors[priority as keyof typeof colors] || 'bg-brand-cream text-brand-dark'}`}>
         {priority}
+      </span>
+    );
+  };
+
+  // Render status badge helper
+  const renderStatusBadge = (status?: string) => {
+    if (!status) return null;
+    const isCompleted = ['Concluído', 'Concluída', 'Postado', 'Pronto'].includes(status);
+    return (
+      <span className={`px-2 py-0.5 rounded-lg text-[9px] font-bold border ${
+        isCompleted 
+          ? 'bg-emerald-50 text-emerald-700 border-emerald-100' 
+          : 'bg-brand-cream text-brand-rose border-brand-beige/30'
+      }`}>
+        {status}
       </span>
     );
   };
@@ -193,8 +203,8 @@ export default function DatabaseView({
   const renderTable = () => {
     if (filteredItems.length === 0) {
       return (
-        <div className="text-center py-12 text-gray-400 text-xs font-medium border border-dashed border-gray-100 rounded-2xl">
-          Nenhum registro encontrado correspondente aos filtros.
+        <div className="text-center py-12 text-brand-rose-light text-xs font-semibold border border-dashed border-brand-beige/40 rounded-2xl bg-white">
+          Nenhum registro encontrado correspondente aos filtros aplicados.
         </div>
       );
     }
@@ -205,51 +215,51 @@ export default function DatabaseView({
     switch (dbId) {
       case 'projetos':
         columns = [
-          { key: 'nome', label: 'Nome do Projeto', render: (val) => <span className="font-bold text-gray-900">{val}</span> },
+          { key: 'nome', label: 'Nome do Projeto', render: (val) => <span className="font-bold text-brand-dark">{val}</span> },
           { key: 'categoria', label: 'Categoria' },
           { key: 'objetivo', label: 'Objetivo Principal' },
           { key: 'prioridade', label: 'Prioridade', render: (val) => renderPriorityBadge(val) },
-          { key: 'status', label: 'Status' },
+          { key: 'status', label: 'Status', render: (val) => renderStatusBadge(val) },
           { key: 'dataInicio', label: 'Data Início' },
           { key: 'proximaAcao', label: 'Próxima Ação' },
         ];
         break;
       case 'produtosUgc':
         columns = [
-          { key: 'nome', label: 'Produto', render: (val, item) => <span className="font-bold text-gray-900">{item.fotos} {val}</span> },
+          { key: 'nome', label: 'Produto', render: (val, item) => <span className="font-bold text-brand-dark">{item.fotos} {val}</span> },
           { key: 'marca', label: 'Marca' },
           { key: 'categoria', label: 'Categoria' },
           { key: 'jaGravei', label: 'Já gravei?', render: (val) => val ? '✅ Sim' : '❌ Não' },
           { key: 'videosGravados', label: 'Vídeos Gravados' },
-          { key: 'status', label: 'Status' },
+          { key: 'status', label: 'Status', render: (val) => renderStatusBadge(val) },
           { key: 'dataGravacao', label: 'Gravação' },
         ];
         break;
       case 'ideiasConteudo':
         columns = [
-          { key: 'titulo', label: 'Ideia', render: (val) => <span className="font-semibold text-gray-900">{val}</span> },
+          { key: 'titulo', label: 'Ideia', render: (val) => <span className="font-bold text-brand-dark">{val}</span> },
           { key: 'categoria', label: 'Categoria' },
           { key: 'projetoId', label: 'Projeto', render: (val) => getProjectName(val) },
           { key: 'produtoId', label: 'Produto Relacionado', render: (val) => getProductName(val) },
           { key: 'plataforma', label: 'Plataforma' },
           { key: 'formato', label: 'Formato' },
-          { key: 'status', label: 'Status' },
+          { key: 'status', label: 'Status', render: (val) => renderStatusBadge(val) },
           { key: 'dificuldade', label: 'Dificuldade' },
         ];
         break;
       case 'roteiros':
         columns = [
-          { key: 'titulo', label: 'Roteiro', render: (val) => <span className="font-bold text-indigo-950">{val}</span> },
+          { key: 'titulo', label: 'Roteiro', render: (val) => <span className="font-bold text-brand-dark">{val}</span> },
           { key: 'produtoId', label: 'Produto', render: (val) => getProductName(val) },
           { key: 'tipo', label: 'Tipo' },
           { key: 'tempo', label: 'Duração' },
-          { key: 'status', label: 'Status' },
+          { key: 'status', label: 'Status', render: (val) => renderStatusBadge(val) },
           { key: 'videoGravado', label: 'Gravado?', render: (val) => val ? '🎥 Sim' : '❌ Não' },
         ];
         break;
       case 'ganchos':
         columns = [
-          { key: 'gancho', label: 'Gancho', render: (val) => <span className="font-medium italic text-gray-900 select-text">"{val}"</span> },
+          { key: 'gancho', label: 'Gancho', render: (val) => <span className="font-medium italic text-brand-dark select-text">"{val}"</span> },
           { key: 'categoria', label: 'Categoria' },
           { key: 'tipoEmocao', label: 'Emoção Estimulada' },
           { key: 'objetivo', label: 'Objetivo' },
@@ -259,75 +269,75 @@ export default function DatabaseView({
         break;
       case 'referencias':
         columns = [
-          { key: 'titulo', label: 'Título', render: (val) => <span className="font-bold text-gray-900">{val}</span> },
+          { key: 'titulo', label: 'Título', render: (val) => <span className="font-bold text-brand-dark">{val}</span> },
           { key: 'criador', label: 'Criador' },
           { key: 'plataforma', label: 'Plataforma' },
           { key: 'categoria', label: 'Categoria' },
-          { key: 'link', label: 'Link', render: (val) => <a href={val} target="_blank" rel="noopener noreferrer" className="text-indigo-600 hover:underline flex items-center space-x-1" onClick={(e) => e.stopPropagation()}><span className="text-[10px]">Abrir</span> <ExternalLink className="h-3 w-3 inline" /></a> },
+          { key: 'link', label: 'Link', render: (val) => <a href={val} target="_blank" rel="noopener noreferrer" className="text-brand-rose hover:underline flex items-center space-x-1 font-bold" onClick={(e) => e.stopPropagation()}><span className="text-[10px]">Abrir</span> <ExternalLink className="h-3 w-3 inline" /></a> },
         ];
         break;
       case 'bancoCenas':
         columns = [
-          { key: 'nome', label: 'Nome da Cena', render: (val) => <span className="font-semibold text-gray-900">{val}</span> },
+          { key: 'titulo', label: 'Nome da Cena', render: (val) => <span className="font-bold text-brand-dark">{val}</span> },
           { key: 'categoria', label: 'Categoria' },
-          { key: 'produtoId', label: 'Produto', render: (val) => getProductName(val) },
-          { key: 'local', label: 'Local de Gravação' },
+          { key: 'linkVideo', label: 'Link do Vídeo', render: (val) => val ? <a href={val} target="_blank" rel="noopener noreferrer" className="text-brand-rose hover:underline flex items-center space-x-1 font-bold" onClick={(e) => e.stopPropagation()}><span className="text-[10px]">Vídeo</span> <ExternalLink className="h-3 w-3 inline" /></a> : '-' },
+          { key: 'estetica', label: 'Estética' },
           { key: 'equipamento', label: 'Equipamento' },
         ];
         break;
       case 'psicologiaConsumidor':
         columns = [
-          { key: 'desejo', label: 'Desejo Profundo', render: (val) => <span className="font-medium text-gray-900">{val}</span> },
-          { key: 'medo', label: 'Medo Oculto' },
-          { key: 'problema', label: 'Problema Comum' },
-          { key: 'gatilhoMental', label: 'Gatilho Mental Forte' },
-          { key: 'necessidade', label: 'Necessidade Básica' },
+          { key: 'desejo', label: 'Desejo Profundo', render: (val) => <span className="font-medium text-brand-dark">{val}</span> },
+          { key: 'categoria', label: 'Categoria' },
+          { key: 'porQueCompra', label: 'Por que compra?' },
+          { key: 'comoAtingir', label: 'Como atingir?' },
+          { key: 'status', label: 'Status', render: (val) => renderStatusBadge(val) },
         ];
         break;
       case 'estudos':
         columns = [
-          { key: 'tema', label: 'Tema de Estudo', render: (val) => <span className="font-bold text-gray-900">{val}</span> },
-          { key: 'curso', label: 'Curso/Mentoria' },
-          { key: 'autor', label: 'Autor/Especialista' },
-          { key: 'status', label: 'Status' },
+          { key: 'tema', label: 'Tema de Estudo', render: (val) => <span className="font-bold text-brand-dark">{val}</span> },
+          { key: 'categoria', label: 'Categoria' },
+          { key: 'conceitoChave', label: 'Conceito Chave' },
+          { key: 'status', label: 'Status', render: (val) => renderStatusBadge(val) },
         ];
         break;
       case 'leituras':
         columns = [
-          { key: 'livro', label: 'Título do Livro', render: (val) => <span className="font-extrabold text-gray-950">📖 {val}</span> },
+          { key: 'livro', label: 'Título do Livro', render: (val) => <span className="font-extrabold text-brand-dark">📖 {val}</span> },
           { key: 'autor', label: 'Autor' },
           { key: 'tema', label: 'Tema Principal' },
-          { key: 'statusLeitura', label: 'Status' },
+          { key: 'statusLeitura', label: 'Status', render: (val) => renderStatusBadge(val) },
         ];
         break;
       case 'videosPublicados':
         columns = [
-          { key: 'titulo', label: 'Título do Post', render: (val) => <span className="font-bold text-gray-900">{val}</span> },
+          { key: 'titulo', label: 'Título do Post', render: (val) => <span className="font-bold text-brand-dark">{val}</span> },
           { key: 'plataforma', label: 'Plataforma' },
           { key: 'projetoId', label: 'Projeto', render: (val) => getProjectName(val) },
           { key: 'produtoId', label: 'Produto', render: (val) => getProductName(val) },
-          { key: 'visualizacoes', label: 'Views', render: (val) => <span className="font-bold text-indigo-700">{val?.toLocaleString('pt-BR')}</span> },
+          { key: 'visualizacoes', label: 'Views', render: (val) => <span className="font-extrabold text-brand-rose">{val?.toLocaleString('pt-BR')}</span> },
           { key: 'curtidas', label: 'Curtidas', render: (val) => val?.toLocaleString('pt-BR') },
           { key: 'salvamentos', label: 'Salvos', render: (val) => val?.toLocaleString('pt-BR') },
         ];
         break;
       case 'metas':
         columns = [
-          { key: 'meta', label: 'Meta', render: (val) => <span className="font-bold text-gray-900">{val}</span> },
-          { key: 'projetoId', label: 'Projeto Relacionado', render: (val) => getProjectName(val) },
+          { key: 'meta', label: 'Meta', render: (val) => <span className="font-bold text-brand-dark">{val}</span> },
+          { key: 'projetoId', label: 'Projeto', render: (val) => getProjectName(val) },
           { key: 'prioridade', label: 'Prioridade', render: (val) => renderPriorityBadge(val) },
-          { key: 'status', label: 'Status' },
+          { key: 'status', label: 'Status', render: (val) => renderStatusBadge(val) },
           { key: 'prazo', label: 'Prazo Limite' },
         ];
         break;
       case 'tarefas':
         columns = [
-          { key: 'tarefa', label: 'Tarefa', render: (val, item) => <span className={`font-semibold ${item.status === 'Concluída' ? 'line-through text-gray-400' : 'text-gray-950'}`}>{val}</span> },
+          { key: 'tarefa', label: 'Tarefa', render: (val, item) => <span className={`font-bold ${item.status === 'Concluída' ? 'line-through text-brand-rose-light opacity-60' : 'text-brand-dark'}`}>{val}</span> },
           { key: 'projetoId', label: 'Projeto', render: (val) => getProjectName(val) },
           { key: 'responsavel', label: 'Responsável' },
           { key: 'prioridade', label: 'Prioridade', render: (val) => renderPriorityBadge(val) },
           { key: 'prazo', label: 'Prazo' },
-          { key: 'status', label: 'Status' },
+          { key: 'status', label: 'Status', render: (val) => renderStatusBadge(val) },
         ];
         break;
       default:
@@ -337,26 +347,26 @@ export default function DatabaseView({
     return (
       <div className="space-y-4">
         {/* Table layout for desktop */}
-        <div className="hidden md:block overflow-x-auto border border-gray-100 rounded-2xl shadow-sm bg-white">
+        <div className="hidden md:block overflow-x-auto border border-brand-beige/30 rounded-2xl shadow-sm bg-white">
           <table className="w-full text-left border-collapse text-xs">
             <thead>
-              <tr className="bg-gray-50 border-b border-gray-100 font-bold text-gray-400 select-none">
+              <tr className="bg-brand-cream/40 border-b border-brand-beige/20 text-brand-rose-light select-none">
                 {columns.map((col) => (
-                  <th key={col.key} className="px-4 py-3 font-semibold uppercase tracking-wider text-[10px]">
+                  <th key={col.key} className="px-5 py-4.5 font-bold uppercase tracking-wider text-[10px]">
                     {col.label}
                   </th>
                 ))}
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100">
+            <tbody className="divide-y divide-brand-beige/10">
               {filteredItems.map((item) => (
                 <tr 
                   key={item.id} 
                   onClick={() => onOpenItemModal(dbId, item.id)}
-                  className="hover:bg-indigo-50/25 transition-all cursor-pointer"
+                  className="hover:bg-brand-cream/20 transition-all cursor-pointer"
                 >
                   {columns.map((col) => (
-                    <td key={col.key} className="px-4 py-3 text-gray-700">
+                    <td key={col.key} className="px-5 py-4 text-brand-dark/90 font-medium">
                       {col.render ? col.render(item[col.key], item) : item[col.key] || '-'}
                     </td>
                   ))}
@@ -367,37 +377,37 @@ export default function DatabaseView({
         </div>
 
         {/* Card layout for mobile */}
-        <div className="block md:hidden space-y-3">
+        <div className="block md:hidden space-y-3 px-1">
           {filteredItems.map((item) => {
             const cardTitle = item.nome || item.titulo || item.livro || item.meta || item.tarefa || item.gancho || item.desejo || 'Item sem nome';
             return (
               <div 
                 key={item.id}
                 onClick={() => onOpenItemModal(dbId, item.id)}
-                className="bg-white border border-gray-200 rounded-xl p-4 shadow-sm active:scale-[0.99] active:bg-gray-50 transition-all cursor-pointer"
+                className="bg-white border border-brand-beige/30 rounded-2xl p-4 shadow-sm active:scale-[0.99] active:bg-brand-cream/10 transition-all cursor-pointer"
               >
-                <div className="flex justify-between items-center mb-2 border-b border-gray-100 pb-2">
-                  <span className="text-[10px] font-bold text-indigo-600 uppercase tracking-wider">
+                <div className="flex justify-between items-center mb-2.5 border-b border-brand-beige/10 pb-2">
+                  <span className="text-[10px] font-extrabold text-brand-rose uppercase tracking-widest">
                     {dbInfo.name}
                   </span>
                   {item.prioridade && renderPriorityBadge(item.prioridade)}
                 </div>
                 
-                <h4 className="font-bold text-gray-900 text-xs mb-2 leading-snug">
+                <h4 className="font-bold text-brand-dark text-sm mb-2.5 leading-snug">
                   {cardTitle}
                 </h4>
 
                 <div className="space-y-1.5">
                   {columns.map((col) => {
-                    // Skip if key matches the titles we display prominently, or priority
+                    // Skip key titles displayed prominently
                     if (['prioridade', 'nome', 'titulo', 'livro', 'meta', 'tarefa', 'gancho', 'desejo'].includes(col.key)) return null;
                     const label = col.label;
                     const val = item[col.key];
                     if (val === undefined || val === '') return null;
                     return (
                       <div key={col.key} className="flex justify-between items-baseline gap-2 text-[11px]">
-                        <span className="font-semibold text-gray-400 shrink-0">{label}:</span>
-                        <span className="text-gray-700 text-right truncate max-w-[70%] font-medium">
+                        <span className="font-bold text-brand-rose-light shrink-0">{label}:</span>
+                        <span className="text-brand-dark text-right truncate max-w-[70%] font-semibold">
                           {col.render ? col.render(val, item) : val}
                         </span>
                       </div>
@@ -405,9 +415,9 @@ export default function DatabaseView({
                   })}
                 </div>
 
-                <div className="mt-3 pt-2 border-t border-gray-50 flex justify-end text-[10px] text-indigo-600 font-bold items-center">
-                  <span>Ver registro</span>
-                  <ChevronRight className="h-3 w-3 ml-0.5" />
+                <div className="mt-3.5 pt-2.5 border-t border-brand-beige/10 flex justify-end text-[10px] text-brand-rose font-bold items-center">
+                  <span>Abrir Registro</span>
+                  <ChevronRight className="h-3.5 w-3.5 ml-0.5" />
                 </div>
               </div>
             );
@@ -421,57 +431,54 @@ export default function DatabaseView({
   const renderGallery = () => {
     if (filteredItems.length === 0) {
       return (
-        <div className="text-center py-12 text-gray-400 text-xs font-medium">
-          Nenhum registro encontrado correspondente aos filtros.
+        <div className="text-center py-12 text-brand-rose-light text-xs font-semibold border border-dashed border-brand-beige/40 rounded-2xl bg-white">
+          Nenhum registro encontrado correspondente aos filtros aplicados.
         </div>
       );
     }
 
     return (
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4.5 px-1 md:px-0">
         {filteredItems.map((item) => {
           return (
             <div
               key={item.id}
               onClick={() => onOpenItemModal(dbId, item.id)}
-              className="border border-gray-200 rounded-2xl overflow-hidden hover:border-indigo-400 transition-all hover:shadow-md cursor-pointer flex flex-col justify-between bg-white group"
+              className="border border-brand-beige/30 rounded-2xl overflow-hidden hover:border-brand-rose/60 transition-all hover:shadow-md cursor-pointer flex flex-col justify-between bg-white group"
             >
               <div>
-                {/* Header/Cover aspect in Gallery */}
-                <div className="h-28 w-full bg-gradient-to-r from-indigo-50 via-purple-50 to-pink-50 flex items-center justify-center border-b border-gray-100 relative">
+                <div className="h-28 w-full bg-gradient-to-tr from-brand-cream/40 via-brand-offwhite to-brand-cream/20 flex items-center justify-center border-b border-brand-beige/20 relative">
                   <span className="text-4xl filter drop-shadow">
                     {item.fotos || (dbId === 'produtosUgc' ? '🧴' : dbId === 'leituras' ? '📖' : '💡')}
                   </span>
-                  <div className="absolute top-2 right-2 flex space-x-1">
+                  <div className="absolute top-3 right-3 flex space-x-1.5">
                     {item.prioridade && renderPriorityBadge(item.prioridade)}
                     {(item.status || item.statusLeitura) && (
-                      <span className="px-1.5 py-0.5 rounded text-[8px] font-bold bg-white/80 border border-gray-200 text-gray-700">
+                      <span className="px-2 py-0.5 rounded-lg text-[8px] font-bold bg-white/90 border border-brand-beige/20 text-brand-dark">
                         {item.status || item.statusLeitura}
                       </span>
                     )}
                   </div>
                 </div>
 
-                <div className="p-4">
-                  <h4 className="font-extrabold text-gray-900 text-sm tracking-tight leading-snug group-hover:text-indigo-600 transition-all mb-1 truncate">
+                <div className="p-4.5">
+                  <h4 className="font-bold text-brand-dark text-sm tracking-tight leading-snug group-hover:text-brand-rose transition-all mb-1 truncate">
                     {item.nome || item.titulo || item.livro || item.meta || item.tarefa || item.desejo}
                   </h4>
-                  <p className="text-[10px] text-gray-400 font-medium mb-2 uppercase tracking-wide">
+                  <p className="text-[10px] text-brand-rose-light font-bold mb-2 uppercase tracking-widest">
                     {item.marca || item.criador || item.autor || getProjectName(item.projetoId) || item.categoria}
                   </p>
                   
-                  {/* Item Description Snippet */}
-                  <p className="text-xs text-gray-500 line-clamp-2 leading-relaxed">
-                    {item.descricao || item.objetivo || item.resumo || item.medo || item.gancho || 'Clique para ver detalhes do item.'}
+                  <p className="text-xs text-brand-dark/70 line-clamp-2 leading-relaxed font-medium">
+                    {item.descricao || item.objetivo || item.resumo || item.medo || item.gancho || 'Clique para visualizar e editar os detalhes deste registro.'}
                   </p>
                 </div>
               </div>
 
-              {/* Bottom tag actions */}
-              <div className="px-4 py-3 border-t border-gray-100 bg-gray-50/50 flex items-center justify-between text-[10px] text-gray-400">
-                <span className="font-semibold">{dbInfo.name}</span>
-                <span className="flex items-center text-indigo-600 hover:underline">
-                  Ver Cartão <ChevronRight className="h-3 w-3 ml-0.5" />
+              <div className="px-4.5 py-3 border-t border-brand-beige/10 bg-brand-cream/10 flex items-center justify-between text-[10px] text-brand-rose-light">
+                <span className="font-bold tracking-wide uppercase">{dbInfo.name}</span>
+                <span className="flex items-center text-brand-rose font-bold">
+                  Ver Cartão <ChevronRight className="h-3.5 w-3.5 ml-0.5" />
                 </span>
               </div>
             </div>
@@ -484,44 +491,44 @@ export default function DatabaseView({
   // Kanban View Renderer
   const renderKanban = () => {
     return (
-      <div className="flex flex-col md:flex-row md:space-x-4 md:overflow-x-auto space-y-4 md:space-y-0 pb-4 select-none">
+      <div className="flex flex-col md:flex-row md:space-x-4 md:overflow-x-auto space-y-4 md:space-y-0 pb-4 select-none px-1 md:px-0">
         {kanbanLanes.map((lane) => {
           const laneItems = groupedKanbanItems[lane] || [];
           return (
-            <div key={lane} className="w-full md:w-72 shrink-0 bg-gray-50 rounded-2xl p-3 flex flex-col h-[550px]">
-              <div className="flex items-center justify-between mb-3 px-1">
-                <div className="flex items-center space-x-1.5">
-                  <span className="h-2 w-2 rounded-full bg-indigo-600" />
-                  <h4 className="font-bold text-gray-800 text-xs">{lane}</h4>
+            <div key={lane} className="w-full md:w-72 shrink-0 bg-brand-cream/30 border border-brand-beige/20 rounded-2xl p-4.5 flex flex-col h-[550px]">
+              <div className="flex items-center justify-between mb-4.5 px-1">
+                <div className="flex items-center space-x-2">
+                  <span className="h-2 w-2 rounded-full bg-brand-rose animate-pulse" />
+                  <h4 className="font-bold text-brand-dark text-xs">{lane}</h4>
                 </div>
-                <span className="text-[10px] font-bold text-gray-400 bg-gray-200/50 px-2 py-0.5 rounded-full">
+                <span className="text-[10px] font-bold text-brand-rose-light bg-brand-cream px-2 py-0.5 rounded-full border border-brand-beige/20">
                   {laneItems.length}
                 </span>
               </div>
 
-              <div className="flex-1 overflow-y-auto space-y-2.5 scrollbar-thin">
+              <div className="flex-grow overflow-y-auto space-y-3 pr-1 scrollbar-none">
                 {laneItems.length === 0 ? (
-                  <div className="text-center py-8 border border-dashed border-gray-200 rounded-xl text-[10px] text-gray-400 bg-white">
-                    Arraste ou crie cartões aqui
+                  <div className="text-center py-10 border border-dashed border-brand-beige/40 rounded-xl text-[10px] font-bold text-brand-rose-light/70 bg-white">
+                    Sem registros nesta etapa
                   </div>
                 ) : (
                   laneItems.map((item) => (
                     <div
                       key={item.id}
                       onClick={() => onOpenItemModal(dbId, item.id)}
-                      className="p-3 bg-white border border-gray-200 rounded-xl hover:border-indigo-400 cursor-pointer shadow-sm hover:shadow transition-all space-y-2"
+                      className="p-3.5 bg-white border border-brand-beige/20 rounded-xl hover:border-brand-rose/50 cursor-pointer shadow-sm hover:shadow transition-all space-y-2"
                     >
-                      <h5 className="font-bold text-gray-900 text-xs leading-snug">
+                      <h5 className="font-bold text-brand-dark text-xs leading-snug">
                         {item.nome || item.titulo || item.meta || item.tarefa}
                       </h5>
-                      <p className="text-[10px] text-gray-400 leading-tight">
+                      <p className="text-[10px] text-brand-rose-light font-bold uppercase tracking-wider">
                         {item.categoria || item.marca || getProjectName(item.projetoId) || item.plataforma}
                       </p>
 
                       {item.prioridade && (
-                        <div className="flex items-center justify-between pt-1.5 border-t border-gray-50">
+                        <div className="flex items-center justify-between pt-2 border-t border-brand-beige/10">
                           {renderPriorityBadge(item.prioridade)}
-                          <span className="text-[9px] text-gray-400">
+                          <span className="text-[9px] text-brand-dark/50 font-bold">
                             {item.prazo || item.tempo || 'Sem prazo'}
                           </span>
                         </div>
@@ -539,50 +546,49 @@ export default function DatabaseView({
 
   // Calendar View Renderer
   const renderCalendar = () => {
-    // Collect all date-associated items
     const datedItems = filteredItems.filter(item => item.dataInicio || item.dataGravacao || item.dataPostagem || item.prazo || item.data);
     
     if (datedItems.length === 0) {
       return (
-        <div className="text-center py-12 text-gray-400 text-xs font-medium border border-dashed border-gray-100 rounded-2xl bg-white">
+        <div className="text-center py-12 text-brand-rose-light text-xs font-semibold border border-dashed border-brand-beige/40 rounded-2xl bg-white px-4">
           Nenhum registro possui data preenchida nesta base para exibir no calendário.
         </div>
       );
     }
 
     return (
-      <div className="bg-white border border-gray-200 rounded-2xl p-5 shadow-sm space-y-4">
-        <div className="flex items-center justify-between border-b border-gray-100 pb-3">
-          <h4 className="font-bold text-gray-900 text-sm">Cronograma Geral de Datas</h4>
-          <span className="text-xs text-gray-400">Exibindo itens agendados</span>
+      <div className="bg-white border border-brand-beige/30 rounded-2xl p-5 shadow-sm space-y-4 px-4 md:px-5">
+        <div className="flex items-center justify-between border-b border-brand-beige/10 pb-3">
+          <h4 className="font-bold text-brand-dark text-sm">Cronograma de Prazos & Datas</h4>
+          <span className="text-xs text-brand-rose-light font-bold">Exibindo registros agendados</span>
         </div>
 
-        <div className="space-y-2.5">
+        <div className="space-y-3">
           {datedItems.map((item) => {
             const dateVal = item.dataInicio || item.dataGravacao || item.dataPostagem || item.prazo || item.data;
             return (
               <div
                 key={item.id}
                 onClick={() => onOpenItemModal(dbId, item.id)}
-                className="flex items-center justify-between p-3 bg-gray-50/50 hover:bg-indigo-50/30 border border-gray-100 rounded-xl cursor-pointer transition-all"
+                className="flex items-center justify-between p-3.5 bg-brand-cream/10 hover:bg-brand-cream/30 border border-brand-beige/20 rounded-xl cursor-pointer transition-all"
               >
-                <div className="flex items-center space-x-3">
-                  <div className="p-2 bg-indigo-50 text-indigo-700 rounded-lg">
+                <div className="flex items-center space-x-3.5">
+                  <div className="p-2 bg-brand-cream text-brand-rose rounded-xl border border-brand-beige/20">
                     <CalendarIcon className="h-4 w-4" />
                   </div>
                   <div>
-                    <h5 className="font-bold text-gray-900 text-xs">{item.nome || item.titulo || item.meta || item.tarefa}</h5>
-                    <p className="text-[10px] text-gray-400 mt-0.5">
+                    <h5 className="font-bold text-brand-dark text-xs">{item.nome || item.titulo || item.meta || item.tarefa}</h5>
+                    <p className="text-[10px] text-brand-rose-light font-bold uppercase tracking-wider mt-0.5">
                       {item.categoria || getProjectName(item.projetoId)}
                     </p>
                   </div>
                 </div>
 
                 <div className="flex items-center space-x-3">
-                  <span className="text-xs font-extrabold text-indigo-600 bg-indigo-50 px-2.5 py-1 rounded-lg">
+                  <span className="text-[10px] font-extrabold text-brand-rose bg-brand-cream border border-brand-beige/30 px-3 py-1 rounded-xl whitespace-nowrap">
                     📅 {dateVal}
                   </span>
-                  <ChevronRight className="h-4 w-4 text-gray-300" />
+                  <ChevronRight className="h-4 w-4 text-brand-rose-light" />
                 </div>
               </div>
             );
@@ -596,29 +602,29 @@ export default function DatabaseView({
   const renderList = () => {
     if (filteredItems.length === 0) {
       return (
-        <div className="text-center py-12 text-gray-400 text-xs font-medium">
-          Nenhum registro encontrado correspondente aos filtros.
+        <div className="text-center py-12 text-brand-rose-light text-xs font-semibold border border-dashed border-brand-beige/40 rounded-2xl bg-white">
+          Nenhum registro encontrado correspondente aos filtros aplicados.
         </div>
       );
     }
 
     return (
-      <div className="space-y-2">
+      <div className="space-y-2.5 px-1 md:px-0">
         {filteredItems.map((item) => (
           <div
             key={item.id}
             onClick={() => onOpenItemModal(dbId, item.id)}
-            className="flex items-center justify-between p-3.5 bg-white border border-gray-200 rounded-xl hover:border-indigo-400 cursor-pointer transition-all hover:shadow-sm"
+            className="flex items-center justify-between p-3.5 bg-white border border-brand-beige/20 rounded-xl hover:border-brand-rose/50 cursor-pointer transition-all hover:shadow-sm"
           >
-            <div className="flex items-center space-x-3 truncate">
+            <div className="flex items-center space-x-3.5 truncate">
               <span className="text-lg shrink-0">
                 {item.fotos || (dbId === 'ganchos' ? '🔑' : dbId === 'referencias' ? '🎯' : '📄')}
               </span>
               <div className="truncate">
-                <h5 className="font-bold text-gray-900 text-xs truncate">
+                <h5 className="font-bold text-brand-dark text-xs truncate">
                   {item.nome || item.titulo || item.livro || item.meta || item.tarefa || item.gancho || item.desejo}
                 </h5>
-                <p className="text-[10px] text-gray-400 mt-0.5 truncate leading-tight">
+                <p className="text-[10px] text-brand-rose-light font-bold uppercase tracking-wider mt-0.5 truncate leading-tight">
                   {item.categoria || item.marca || getProjectName(item.projetoId) || item.medo}
                 </p>
               </div>
@@ -626,13 +632,7 @@ export default function DatabaseView({
 
             <div className="flex items-center space-x-2 shrink-0">
               {item.prioridade && renderPriorityBadge(item.prioridade)}
-              <span className={`px-2 py-0.5 rounded text-[9px] font-semibold ${
-                item.status === 'Concluído' || item.statusLeitura === 'Concluído'
-                  ? 'bg-emerald-50 text-emerald-700'
-                  : 'bg-indigo-50 text-indigo-700'
-              }`}>
-                {item.status || item.statusLeitura || 'Ativo'}
-              </span>
+              {renderStatusBadge(item.status || item.statusLeitura || 'Ativo')}
             </div>
           </div>
         ))}
@@ -641,18 +641,18 @@ export default function DatabaseView({
   };
 
   return (
-    <div className="flex-grow bg-white overflow-y-auto h-screen pb-24 px-4 md:px-8 select-none font-sans scrollbar-thin">
+    <div className="flex-grow bg-[#F8F5F2] overflow-y-auto h-screen pb-24 px-4 md:px-8 select-none font-sans scrollbar-none">
       {/* DB Header section */}
-      <div className="py-4 md:py-6 border-b border-gray-100 flex flex-col md:flex-row md:items-center md:justify-between gap-4 shrink-0">
+      <div className="py-5 md:py-6 border-b border-brand-beige/25 flex flex-col md:flex-row md:items-center md:justify-between gap-4 shrink-0">
         <div className="flex items-start space-x-3.5">
-          <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl md:rounded-2xl bg-indigo-50 border border-indigo-100 flex items-center justify-center text-xl md:text-2xl shadow-inner shrink-0">
+          <div className="w-11 h-11 md:w-12 md:h-12 rounded-2xl bg-brand-cream border border-brand-beige/30 flex items-center justify-center text-xl md:text-2xl shadow-inner shrink-0 text-brand-rose">
             {dbInfo.emoji}
           </div>
           <div>
-            <h1 className="text-lg md:text-xl font-extrabold text-gray-900 tracking-tight leading-tight">
+            <h1 className="text-lg md:text-xl font-bold text-brand-dark tracking-tight leading-tight">
               {dbInfo.name}
             </h1>
-            <p className="text-[11px] md:text-xs text-gray-400 mt-0.5 md:mt-1 leading-normal max-w-xl">
+            <p className="text-[11px] md:text-xs text-brand-rose-light font-medium mt-1 leading-normal max-w-xl">
               {dbInfo.desc}
             </p>
           </div>
@@ -661,15 +661,15 @@ export default function DatabaseView({
         {/* Quick Database Add Button */}
         <button
           onClick={() => onAddNewItem(dbId)}
-          className="flex items-center justify-center space-x-1.5 bg-indigo-600 hover:bg-indigo-700 text-white px-3.5 py-2 rounded-xl text-xs font-semibold shadow-sm hover:shadow transition-all active:scale-95 cursor-pointer shrink-0 w-full md:w-auto"
+          className="flex items-center justify-center space-x-2 bg-brand-rose hover:bg-brand-rose/95 active:scale-95 text-white px-4 py-2.5 rounded-xl text-xs font-bold shadow-sm transition-all cursor-pointer shrink-0 w-full md:w-auto"
         >
           <Plus className="h-4 w-4" />
-          <span>Novo Item</span>
+          <span>Novo Registro</span>
         </button>
       </div>
 
       {/* Navigation Filter / Views Panel */}
-      <div className="my-3 md:my-4 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3 bg-gray-50 p-2 rounded-2xl border border-gray-100 shrink-0 overflow-hidden">
+      <div className="my-3.5 md:my-4 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3.5 bg-white p-2 rounded-2xl border border-brand-beige/20 shrink-0 overflow-hidden">
         
         {/* Toggle Visual Styles */}
         <div className="flex items-center space-x-1 overflow-x-auto scrollbar-none pb-1 lg:pb-0 shrink-0 max-w-full">
@@ -686,10 +686,10 @@ export default function DatabaseView({
               <button
                 key={v.type}
                 onClick={() => setViewType(v.type as DatabaseViewType)}
-                className={`flex items-center space-x-1 px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-all shrink-0 active:scale-95 cursor-pointer ${
+                className={`flex items-center space-x-1.5 px-3 py-1.8 rounded-xl text-xs font-bold transition-all shrink-0 active:scale-95 cursor-pointer ${
                   isSelected 
-                    ? 'bg-white text-indigo-700 shadow-sm' 
-                    : 'text-gray-500 hover:bg-gray-100 hover:text-gray-900'
+                    ? 'bg-brand-rose text-white shadow-sm' 
+                    : 'text-brand-rose-light hover:bg-brand-cream hover:text-brand-rose'
                 }`}
               >
                 <Icon className="h-3.5 w-3.5" />
@@ -702,13 +702,13 @@ export default function DatabaseView({
         {/* Local Search and Filter Panel */}
         <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap w-full lg:w-auto">
           <div className="relative w-full sm:w-auto flex-1 sm:flex-initial">
-            <Search className="absolute left-2.5 top-2 h-3.5 w-3.5 text-gray-400" />
+            <Search className="absolute left-3 top-2.5 h-3.5 w-3.5 text-brand-rose-light" />
             <input
               type="text"
-              placeholder="Pesquisar nesta base..."
+              placeholder="Pesquisar registros..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-8 pr-3 py-1.5 bg-white border border-gray-200 rounded-lg text-xs placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-all w-full sm:w-44"
+              className="pl-9 pr-3 py-1.8 bg-brand-cream/20 border border-brand-beige/30 rounded-xl text-xs font-medium placeholder-brand-rose-light/60 text-brand-dark focus:outline-none focus:ring-1 focus:ring-brand-rose focus:border-brand-rose transition-all w-full sm:w-44"
             />
           </div>
 
@@ -717,7 +717,7 @@ export default function DatabaseView({
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              className="text-[11px] font-semibold text-gray-500 bg-white border border-gray-200 rounded-lg px-2 py-1.5 focus:outline-none focus:ring-1 focus:ring-indigo-500 shrink-0"
+              className="text-[11px] font-bold text-brand-rose bg-white border border-brand-beige/30 rounded-xl px-2.5 py-1.8 focus:outline-none focus:ring-1 focus:ring-brand-rose shrink-0"
             >
               <option value="Todos">Status (Todos)</option>
               {filterOptions.statuses.filter(s => s !== 'Todos').map(s => (
@@ -730,7 +730,7 @@ export default function DatabaseView({
             <select
               value={priorityFilter}
               onChange={(e) => setPriorityFilter(e.target.value)}
-              className="text-[11px] font-semibold text-gray-500 bg-white border border-gray-200 rounded-lg px-2 py-1.5 focus:outline-none focus:ring-1 focus:ring-indigo-500 shrink-0"
+              className="text-[11px] font-bold text-brand-rose bg-white border border-brand-beige/30 rounded-xl px-2.5 py-1.8 focus:outline-none focus:ring-1 focus:ring-brand-rose shrink-0"
             >
               <option value="Todos">Prioridade (Todos)</option>
               {filterOptions.priorities.filter(p => p !== 'Todos').map(p => (
@@ -742,7 +742,7 @@ export default function DatabaseView({
       </div>
 
       {/* Main View Area */}
-      <div className="mt-4">
+      <div className="mt-4 pb-12">
         {viewType === 'tabela' && renderTable()}
         {viewType === 'galeria' && renderGallery()}
         {viewType === 'kanban' && renderKanban()}

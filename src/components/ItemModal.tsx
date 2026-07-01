@@ -83,30 +83,30 @@ export default function ItemModal({
   const videosPublicadosList = state.videosPublicados;
 
   return (
-    <div className="fixed inset-0 bg-black/45 backdrop-blur-[2px] flex justify-end z-50 select-none animate-fade-in font-sans">
+    <div className="fixed inset-0 bg-[#2C2C2C]/50 backdrop-blur-[2px] flex justify-end z-50 select-none animate-fade-in font-sans">
       
       {/* Modal Side Drawer */}
       <div className="w-full md:max-w-2xl bg-white h-full shadow-2xl flex flex-col justify-between overflow-hidden select-text animate-slide-in">
         
         {/* Header bar */}
-        <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between shrink-0 bg-gray-50/50">
-          <div className="flex items-center space-x-2 text-xs text-gray-400 font-bold uppercase tracking-wider">
-            <span>🗄️ {dbId}</span>
+        <div className="px-6 py-4.5 border-b border-brand-beige/25 flex items-center justify-between shrink-0 bg-brand-cream/20">
+          <div className="flex items-center space-x-2.5 text-xs text-brand-rose-light font-bold uppercase tracking-widest">
+            <span>🗄️ {dbId === 'produtosUgc' ? 'Produtos UGC' : dbId === 'ideiasConteudo' ? 'Ideias de Conteúdo' : dbId}</span>
             <span>•</span>
-            <span className="text-indigo-600">Ficha do Registro</span>
+            <span className="text-brand-rose">Ficha de Edição</span>
           </div>
 
           <div className="flex items-center space-x-2">
             <button
               onClick={handleDelete}
-              className="p-1.5 text-gray-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-all"
-              title="Deletar este registro"
+              className="p-2 text-brand-rose-light hover:text-brand-rose hover:bg-brand-cream/50 rounded-xl transition-all cursor-pointer"
+              title="Deletar este registro permanentemente"
             >
               <Trash2 className="h-4.5 w-4.5" />
             </button>
             <button
               onClick={onClose}
-              className="p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-all"
+              className="p-2 text-brand-rose-light hover:text-brand-rose hover:bg-brand-cream/50 rounded-xl transition-all cursor-pointer"
             >
               <X className="h-5 w-5" />
             </button>
@@ -114,12 +114,12 @@ export default function ItemModal({
         </div>
 
         {/* Dynamic content scrollable pane */}
-        <div className="flex-1 overflow-y-auto p-6 space-y-6">
+        <div className="flex-1 overflow-y-auto p-6 space-y-6 scrollbar-none">
           
           {/* Top Title */}
           <div>
-            <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">
-              Título / Identificação
+            <label className="block text-[9px] font-bold text-brand-rose-light uppercase tracking-widest mb-1.5">
+              Título / Identificação do Registro
             </label>
             <input
               type="text"
@@ -134,25 +134,25 @@ export default function ItemModal({
                 else if (editedItem.gancho !== undefined) handleFieldChange('gancho', text);
                 else if (editedItem.desejo !== undefined) handleFieldChange('desejo', text);
               }}
-              className="w-full text-xl font-extrabold text-gray-900 border-b border-gray-200 focus:border-indigo-500 focus:outline-none pb-2 tracking-tight"
-              placeholder="Digite o título principal..."
+              className="w-full text-lg md:text-xl font-bold text-brand-dark border-b border-brand-beige/40 focus:border-brand-rose focus:outline-none pb-2 tracking-tight"
+              placeholder="Digite a identificação principal..."
             />
           </div>
 
           {/* Core Properties Fields Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-gray-50/70 p-4 rounded-2xl border border-gray-100">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-brand-cream/20 p-4.5 rounded-2xl border border-brand-beige/25">
             
             {/* Project dropdown selection */}
             {editedItem.projetoId !== undefined && (
               <div>
-                <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">
+                <label className="block text-[9px] font-bold text-brand-rose-light uppercase tracking-widest mb-1.5">
                   📁 Projeto Relacionado
                 </label>
                 <div className="flex items-center space-x-2">
                   <select
                     value={editedItem.projetoId}
                     onChange={(e) => handleFieldChange('projetoId', e.target.value)}
-                    className="flex-1 text-xs text-gray-700 bg-white border border-gray-200 rounded-lg p-2 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                    className="flex-1 text-xs font-semibold text-brand-dark bg-white border border-brand-beige/30 rounded-xl p-2.5 focus:outline-none focus:ring-1 focus:ring-brand-rose focus:border-brand-rose"
                   >
                     <option value="">Nenhum</option>
                     {projetosList.map(p => (
@@ -162,8 +162,8 @@ export default function ItemModal({
                   {editedItem.projetoId && (
                     <button 
                       onClick={() => onJumpToRelation('projetos', editedItem.projetoId)}
-                      className="p-1.8 bg-indigo-50 hover:bg-indigo-100 rounded-lg text-indigo-600 transition-all text-xs font-semibold"
-                      title="Ir para o Projeto"
+                      className="p-2.5 bg-brand-cream text-brand-rose rounded-xl hover:bg-brand-cream/80 transition-all text-xs font-bold border border-[#C98484]/15 cursor-pointer"
+                      title="Abrir Projeto Relacionado"
                     >
                       <ArrowRight className="h-4 w-4" />
                     </button>
@@ -175,14 +175,14 @@ export default function ItemModal({
             {/* UGC Product dropdown selection */}
             {editedItem.produtoId !== undefined && (
               <div>
-                <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">
+                <label className="block text-[9px] font-bold text-brand-rose-light uppercase tracking-widest mb-1.5">
                   🧴 Produto UGC Relacionado
                 </label>
                 <div className="flex items-center space-x-2">
                   <select
                     value={editedItem.produtoId}
                     onChange={(e) => handleFieldChange('produtoId', e.target.value)}
-                    className="flex-1 text-xs text-gray-700 bg-white border border-gray-200 rounded-lg p-2 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                    className="flex-1 text-xs font-semibold text-brand-dark bg-white border border-brand-beige/30 rounded-xl p-2.5 focus:outline-none focus:ring-1 focus:ring-brand-rose focus:border-brand-rose"
                   >
                     <option value="">Nenhum</option>
                     {produtosUgcList.map(p => (
@@ -192,8 +192,8 @@ export default function ItemModal({
                   {editedItem.produtoId && (
                     <button 
                       onClick={() => onJumpToRelation('produtosUgc', editedItem.produtoId)}
-                      className="p-1.8 bg-indigo-50 hover:bg-indigo-100 rounded-lg text-indigo-600 transition-all text-xs font-semibold"
-                      title="Ir para o Produto"
+                      className="p-2.5 bg-brand-cream text-brand-rose rounded-xl hover:bg-brand-cream/80 transition-all text-xs font-bold border border-[#C98484]/15 cursor-pointer"
+                      title="Abrir Produto UGC"
                     >
                       <ArrowRight className="h-4 w-4" />
                     </button>
@@ -205,14 +205,14 @@ export default function ItemModal({
             {/* Leitura / Book dropdown selection */}
             {editedItem.livroId !== undefined && (
               <div>
-                <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">
+                <label className="block text-[9px] font-bold text-brand-rose-light uppercase tracking-widest mb-1.5">
                   📖 Livro / Leitura Relacionada
                 </label>
                 <div className="flex items-center space-x-2">
                   <select
                     value={editedItem.livroId}
                     onChange={(e) => handleFieldChange('livroId', e.target.value)}
-                    className="flex-1 text-xs text-gray-700 bg-white border border-gray-200 rounded-lg p-2 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                    className="flex-1 text-xs font-semibold text-brand-dark bg-white border border-brand-beige/30 rounded-xl p-2.5 focus:outline-none focus:ring-1 focus:ring-brand-rose focus:border-brand-rose"
                   >
                     <option value="">Nenhum</option>
                     {leiturasList.map(l => (
@@ -222,8 +222,8 @@ export default function ItemModal({
                   {editedItem.livroId && (
                     <button 
                       onClick={() => onJumpToRelation('leituras', editedItem.livroId)}
-                      className="p-1.8 bg-indigo-50 hover:bg-indigo-100 rounded-lg text-indigo-600 transition-all text-xs font-semibold"
-                      title="Ir para a Leitura"
+                      className="p-2.5 bg-brand-cream text-brand-rose rounded-xl hover:bg-brand-cream/80 transition-all text-xs font-bold border border-[#C98484]/15 cursor-pointer"
+                      title="Abrir Livro"
                     >
                       <ArrowRight className="h-4 w-4" />
                     </button>
@@ -235,14 +235,14 @@ export default function ItemModal({
             {/* Content Idea dropdown selection */}
             {editedItem.ideiaId !== undefined && (
               <div>
-                <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">
+                <label className="block text-[9px] font-bold text-brand-rose-light uppercase tracking-widest mb-1.5">
                   💡 Ideia de Conteúdo Relacionada
                 </label>
                 <div className="flex items-center space-x-2">
                   <select
                     value={editedItem.ideiaId}
                     onChange={(e) => handleFieldChange('ideiaId', e.target.value)}
-                    className="flex-1 text-xs text-gray-700 bg-white border border-gray-200 rounded-lg p-2 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                    className="flex-1 text-xs font-semibold text-brand-dark bg-white border border-brand-beige/30 rounded-xl p-2.5 focus:outline-none focus:ring-1 focus:ring-brand-rose focus:border-brand-rose"
                   >
                     <option value="">Nenhuma</option>
                     {ideiasConteudoList.map(i => (
@@ -252,8 +252,8 @@ export default function ItemModal({
                   {editedItem.ideiaId && (
                     <button 
                       onClick={() => onJumpToRelation('ideiasConteudo', editedItem.ideiaId)}
-                      className="p-1.8 bg-indigo-50 hover:bg-indigo-100 rounded-lg text-indigo-600 transition-all text-xs font-semibold"
-                      title="Ir para a Ideia"
+                      className="p-2.5 bg-brand-cream text-brand-rose rounded-xl hover:bg-brand-cream/80 transition-all text-xs font-bold border border-[#C98484]/15 cursor-pointer"
+                      title="Abrir Ideia de Conteúdo"
                     >
                       <ArrowRight className="h-4 w-4" />
                     </button>
@@ -265,13 +265,13 @@ export default function ItemModal({
             {/* Status Field */}
             {(editedItem.status !== undefined || editedItem.statusLeitura !== undefined) && (
               <div>
-                <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">
+                <label className="block text-[9px] font-bold text-brand-rose-light uppercase tracking-widest mb-1.5">
                   ⚡ Status Atual
                 </label>
                 <select
                   value={editedItem.status || editedItem.statusLeitura}
                   onChange={(e) => handleFieldChange(editedItem.status !== undefined ? 'status' : 'statusLeitura', e.target.value)}
-                  className="w-full text-xs text-gray-700 bg-white border border-gray-200 rounded-lg p-2 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                  className="w-full text-xs font-semibold text-brand-dark bg-white border border-brand-beige/30 rounded-xl p-2.5 focus:outline-none focus:ring-1 focus:ring-brand-rose focus:border-brand-rose"
                 >
                   {dbId === 'projetos' && (
                     <>
@@ -343,13 +343,13 @@ export default function ItemModal({
             {/* Priority Field */}
             {editedItem.prioridade !== undefined && (
               <div>
-                <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">
-                  🔥 Prioridade
+                <label className="block text-[9px] font-bold text-brand-rose-light uppercase tracking-widest mb-1.5">
+                  🔥 Nível de Prioridade
                 </label>
                 <select
                   value={editedItem.prioridade}
                   onChange={(e) => handleFieldChange('prioridade', e.target.value)}
-                  className="w-full text-xs text-gray-700 bg-white border border-gray-200 rounded-lg p-2 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                  className="w-full text-xs font-semibold text-brand-dark bg-white border border-brand-beige/30 rounded-xl p-2.5 focus:outline-none focus:ring-1 focus:ring-brand-rose focus:border-brand-rose"
                 >
                   <option value="Baixa">Baixa</option>
                   <option value="Média">Média</option>
@@ -361,14 +361,14 @@ export default function ItemModal({
             {/* Category Text/Selection */}
             {editedItem.categoria !== undefined && (
               <div>
-                <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">
+                <label className="block text-[9px] font-bold text-brand-rose-light uppercase tracking-widest mb-1.5">
                   🏷️ Categoria / Segmento
                 </label>
                 {dbId === 'ideiasConteudo' || dbId === 'ganchos' ? (
                   <select
                     value={editedItem.categoria}
                     onChange={(e) => handleFieldChange('categoria', e.target.value)}
-                    className="w-full text-xs text-gray-700 bg-white border border-gray-200 rounded-lg p-2 focus:outline-none"
+                    className="w-full text-xs font-semibold text-brand-dark bg-white border border-brand-beige/30 rounded-xl p-2.5 focus:outline-none focus:ring-1 focus:ring-brand-rose focus:border-brand-rose"
                   >
                     {dbId === 'ideiasConteudo' ? (
                       <>
@@ -410,7 +410,7 @@ export default function ItemModal({
                     type="text"
                     value={editedItem.categoria}
                     onChange={(e) => handleFieldChange('categoria', e.target.value)}
-                    className="w-full text-xs text-gray-700 bg-white border border-gray-200 rounded-lg p-2 focus:outline-none"
+                    className="w-full text-xs font-semibold text-brand-dark bg-white border border-brand-beige/30 rounded-xl p-2.5 focus:outline-none focus:ring-1 focus:ring-brand-rose focus:border-brand-rose"
                     placeholder="Categoria do item..."
                   />
                 )}
@@ -420,7 +420,7 @@ export default function ItemModal({
             {/* Date Fields */}
             {(editedItem.dataInicio !== undefined || editedItem.dataGravacao !== undefined || editedItem.dataPostagem !== undefined || editedItem.prazo !== undefined || editedItem.data !== undefined) && (
               <div>
-                <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">
+                <label className="block text-[9px] font-bold text-brand-rose-light uppercase tracking-widest mb-1.5">
                   📅 Data Agendada / Prazo
                 </label>
                 <input
@@ -434,7 +434,7 @@ export default function ItemModal({
                     else if (editedItem.prazo !== undefined) handleFieldChange('prazo', d);
                     else if (editedItem.data !== undefined) handleFieldChange('data', d);
                   }}
-                  className="w-full text-xs text-gray-700 bg-white border border-gray-200 rounded-lg p-2 focus:outline-none"
+                  className="w-full text-xs font-semibold text-brand-dark bg-white border border-brand-beige/30 rounded-xl p-2.5 focus:outline-none focus:ring-1 focus:ring-brand-rose focus:border-brand-rose"
                 />
               </div>
             )}
@@ -442,57 +442,57 @@ export default function ItemModal({
             {/* Numeric Fields */}
             {editedItem.videosGravados !== undefined && (
               <div>
-                <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">
-                  📹 Quantos vídeos gravei?
+                <label className="block text-[9px] font-bold text-brand-rose-light uppercase tracking-widest mb-1.5">
+                  📹 Vídeos Gravados
                 </label>
                 <input
                   type="number"
                   value={editedItem.videosGravados}
                   onChange={(e) => handleFieldChange('videosGravados', parseInt(e.target.value) || 0)}
-                  className="w-full text-xs text-gray-700 bg-white border border-gray-200 rounded-lg p-2 focus:outline-none"
+                  className="w-full text-xs font-semibold text-brand-dark bg-white border border-brand-beige/30 rounded-xl p-2.5 focus:outline-none focus:ring-1 focus:ring-brand-rose focus:border-brand-rose"
                 />
               </div>
             )}
 
             {/* Checkbox fields */}
             {editedItem.jaGravei !== undefined && (
-              <div className="flex items-center space-x-2 pt-4">
+              <div className="flex items-center space-x-2.5 pt-4">
                 <input
                   type="checkbox"
                   checked={editedItem.jaGravei}
                   onChange={(e) => handleFieldChange('jaGravei', e.target.checked)}
-                  className="h-4.5 w-4.5 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 cursor-pointer"
+                  className="h-4.5 w-4.5 rounded border-brand-beige text-brand-rose focus:ring-brand-rose cursor-pointer transition-all"
                 />
-                <label className="text-xs font-bold text-gray-700">
-                  Já Gravei este produto?
+                <label className="text-xs font-bold text-brand-dark">
+                  Já gravei este produto?
                 </label>
               </div>
             )}
 
             {editedItem.videoGravado !== undefined && (
-              <div className="flex items-center space-x-2 pt-4">
+              <div className="flex items-center space-x-2.5 pt-4">
                 <input
                   type="checkbox"
                   checked={editedItem.videoGravado}
                   onChange={(e) => handleFieldChange('videoGravado', e.target.checked)}
-                  className="h-4.5 w-4.5 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 cursor-pointer"
+                  className="h-4.5 w-4.5 rounded border-brand-beige text-brand-rose focus:ring-brand-rose cursor-pointer transition-all"
                 />
-                <label className="text-xs font-bold text-gray-700">
+                <label className="text-xs font-bold text-brand-dark">
                   Vídeo do roteiro gravado?
                 </label>
               </div>
             )}
 
             {editedItem.jaUtilizei !== undefined && (
-              <div className="flex items-center space-x-2 pt-4">
+              <div className="flex items-center space-x-2.5 pt-4">
                 <input
                   type="checkbox"
                   checked={editedItem.jaUtilizei}
                   onChange={(e) => handleFieldChange('jaUtilizei', e.target.checked)}
-                  className="h-4.5 w-4.5 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 cursor-pointer"
+                  className="h-4.5 w-4.5 rounded border-brand-beige text-brand-rose focus:ring-brand-rose cursor-pointer transition-all"
                 />
-                <label className="text-xs font-bold text-gray-700">
-                  Gancho já utilizado?
+                <label className="text-xs font-bold text-brand-dark">
+                  Gancho já utilizado em posts?
                 </label>
               </div>
             )}
@@ -501,101 +501,101 @@ export default function ItemModal({
 
           {/* Special UGC Product sub-panels (Características, Benefícios, etc.) */}
           {dbId === 'produtosUgc' && (
-            <div className="space-y-4 bg-amber-50/20 border border-amber-100 rounded-2xl p-5">
-              <div className="flex items-center space-x-1.5 text-amber-800 font-bold text-xs uppercase tracking-wider border-b border-amber-100/50 pb-2">
-                <Sparkles className="h-4 w-4 text-amber-500" />
-                <span>Análise de Copys e Psicologia do Produto</span>
+            <div className="space-y-4 bg-brand-cream/15 border border-[#C98484]/15 rounded-2xl p-5">
+              <div className="flex items-center space-x-2 text-brand-rose font-bold text-xs uppercase tracking-wider border-b border-brand-beige/10 pb-2">
+                <Sparkles className="h-4 w-4 text-brand-rose animate-pulse" />
+                <span>Análise de Copys & Psicologia de Vendas</span>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
                 <div>
-                  <label className="block font-bold text-gray-500 mb-1">Características</label>
+                  <label className="block font-bold text-brand-rose-light mb-1">Características</label>
                   <textarea
                     value={editedItem.caracteristicas || ''}
                     onChange={(e) => handleFieldChange('caracteristicas', e.target.value)}
-                    className="w-full p-2 bg-white border border-gray-200 rounded-lg h-20 focus:outline-none"
+                    className="w-full p-2.5 bg-white border border-brand-beige/25 rounded-xl h-20 text-xs focus:ring-1 focus:ring-brand-rose focus:outline-none"
                     placeholder="Ex: Textura fluida, embalagem luxo..."
                   />
                 </div>
 
                 <div>
-                  <label className="block font-bold text-gray-500 mb-1">Benefícios</label>
+                  <label className="block font-bold text-brand-rose-light mb-1">Benefícios</label>
                   <textarea
                     value={editedItem.beneficios || ''}
                     onChange={(e) => handleFieldChange('beneficios', e.target.value)}
-                    className="w-full p-2 bg-white border border-gray-200 rounded-lg h-20 focus:outline-none"
+                    className="w-full p-2.5 bg-white border border-brand-beige/25 rounded-xl h-20 text-xs focus:ring-1 focus:ring-brand-rose focus:outline-none"
                     placeholder="Ex: Pele hidratada em 10 dias..."
                   />
                 </div>
 
                 <div>
-                  <label className="block font-bold text-gray-500 mb-1">Problemas que resolve</label>
+                  <label className="block font-bold text-brand-rose-light mb-1">Problemas que resolve</label>
                   <textarea
                     value={editedItem.problemasQueResolve || ''}
                     onChange={(e) => handleFieldChange('problemasQueResolve', e.target.value)}
-                    className="w-full p-2 bg-white border border-gray-200 rounded-lg h-20 focus:outline-none"
+                    className="w-full p-2.5 bg-white border border-brand-beige/25 rounded-xl h-20 text-xs focus:ring-1 focus:ring-brand-rose focus:outline-none"
                     placeholder="Ex: Ressecamento, base craquelada..."
                   />
                 </div>
 
                 <div>
-                  <label className="block font-bold text-gray-500 mb-1">Desejos que desperta</label>
+                  <label className="block font-bold text-brand-rose-light mb-1">Desejos que desperta</label>
                   <textarea
                     value={editedItem.desejosQueDesperta || ''}
                     onChange={(e) => handleFieldChange('desejosQueDesperta', e.target.value)}
-                    className="w-full p-2 bg-white border border-gray-200 rounded-lg h-20 focus:outline-none"
+                    className="w-full p-2.5 bg-white border border-brand-beige/25 rounded-xl h-20 text-xs focus:ring-1 focus:ring-brand-rose focus:outline-none"
                     placeholder="Ex: Aparência limpa, de spa..."
                   />
                 </div>
 
                 <div>
-                  <label className="block font-bold text-gray-500 mb-1">Emoções</label>
+                  <label className="block font-bold text-brand-rose-light mb-1">Emoções estimuladas</label>
                   <textarea
                     value={editedItem.emocoes || ''}
                     onChange={(e) => handleFieldChange('emocoes', e.target.value)}
-                    className="w-full p-2 bg-white border border-gray-200 rounded-lg h-20 focus:outline-none"
+                    className="w-full p-2.5 bg-white border border-brand-beige/25 rounded-xl h-20 text-xs focus:ring-1 focus:ring-brand-rose focus:outline-none"
                     placeholder="Ex: Confiança, leveza..."
                   />
                 </div>
 
                 <div>
-                  <label className="block font-bold text-gray-500 mb-1">Público-alvo</label>
+                  <label className="block font-bold text-brand-rose-light mb-1">Público-alvo</label>
                   <textarea
                     value={editedItem.publicoAlvo || ''}
                     onChange={(e) => handleFieldChange('publicoAlvo', e.target.value)}
-                    className="w-full p-2 bg-white border border-gray-200 rounded-lg h-20 focus:outline-none"
+                    className="w-full p-2.5 bg-white border border-brand-beige/25 rounded-xl h-20 text-xs focus:ring-1 focus:ring-brand-rose focus:outline-none"
                     placeholder="Ex: Estudantes femininas, influencers..."
                   />
                 </div>
 
                 <div>
-                  <label className="block font-bold text-gray-500 mb-1">Objeções Comuns</label>
+                  <label className="block font-bold text-brand-rose-light mb-1">Objeções Comuns</label>
                   <textarea
                     value={editedItem.objecoes || ''}
                     onChange={(e) => handleFieldChange('objecoes', e.target.value)}
-                    className="w-full p-2 bg-white border border-gray-200 rounded-lg h-20 focus:outline-none"
+                    className="w-full p-2.5 bg-white border border-brand-beige/25 rounded-xl h-20 text-xs focus:ring-1 focus:ring-brand-rose focus:outline-none"
                     placeholder="Ex: Preço elevado, receio de oleosidade..."
                   />
                 </div>
 
                 <div>
-                  <label className="block font-bold text-gray-500 mb-1">Gatilhos Mentais</label>
+                  <label className="block font-bold text-brand-rose-light mb-1">Gatilhos Mentais</label>
                   <textarea
                     value={editedItem.gatilhosMentais || ''}
                     onChange={(e) => handleFieldChange('gatilhosMentais', e.target.value)}
-                    className="w-full p-2 bg-white border border-gray-200 rounded-lg h-20 focus:outline-none"
+                    className="w-full p-2.5 bg-white border border-brand-beige/25 rounded-xl h-20 text-xs focus:ring-1 focus:ring-brand-rose focus:outline-none"
                     placeholder="Ex: Prova social, reciprocidade..."
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block font-bold text-xs text-gray-500 mb-1">Ideias de vídeos sugeridos</label>
+                <label className="block font-bold text-xs text-brand-rose-light mb-1">Ideias de vídeos sugeridos</label>
                 <textarea
                   value={editedItem.ideiaDeVideos || editedItem.ideiasDeVideos || ''}
                   onChange={(e) => handleFieldChange('ideiasDeVideos', e.target.value)}
-                  className="w-full p-2 bg-white border border-gray-200 rounded-lg h-24 text-xs focus:outline-none"
-                  placeholder="Liste ideias rápidas de vídeos..."
+                  className="w-full p-2.5 bg-white border border-brand-beige/25 rounded-xl h-24 text-xs focus:ring-1 focus:ring-brand-rose focus:outline-none"
+                  placeholder="Liste as ideias rápidas de gravação UGC para este produto..."
                 />
               </div>
             </div>
@@ -603,46 +603,46 @@ export default function ItemModal({
 
           {/* Roteiro Specific detailed textareas */}
           {dbId === 'roteiros' && (
-            <div className="space-y-4 bg-indigo-50/20 border border-indigo-100 rounded-2xl p-5 text-xs">
-              <div className="font-bold text-indigo-900 border-b border-indigo-100/50 pb-2">
+            <div className="space-y-4 bg-brand-cream/15 border border-[#C98484]/15 rounded-2xl p-5 text-xs">
+              <div className="font-bold text-brand-rose border-b border-brand-beige/20 pb-2">
                 ✍️ Estrutura Literária do Roteiro
               </div>
 
               <div>
-                <label className="block font-bold text-gray-500 mb-1">O Gancho (Abertura - primeiros 3s)</label>
+                <label className="block font-bold text-brand-rose-light mb-1">O Gancho (Abertura - primeiros 3s)</label>
                 <textarea
                   value={editedItem.gancho || ''}
                   onChange={(e) => handleFieldChange('gancho', e.target.value)}
-                  className="w-full p-3 bg-white border border-gray-200 rounded-xl h-20 focus:ring-1 focus:ring-indigo-500 focus:outline-none italic"
+                  className="w-full p-3 bg-white border border-brand-beige/25 rounded-xl h-20 focus:ring-1 focus:ring-brand-rose focus:outline-none italic"
                   placeholder='Ex: [SOM DE VIDRO] "Se você quer a pele iluminada sem filtro..."'
                 />
               </div>
 
               <div>
-                <label className="block font-bold text-gray-500 mb-1">O Desenvolvimento (Apresentação, textura, demonstração)</label>
+                <label className="block font-bold text-brand-rose-light mb-1">O Desenvolvimento (Apresentação, textura, demonstração)</label>
                 <textarea
                   value={editedItem.desenvolvimento || ''}
                   onChange={(e) => handleFieldChange('desenvolvimento', e.target.value)}
-                  className="w-full p-3 bg-white border border-gray-200 rounded-xl h-28 focus:ring-1 focus:ring-indigo-500 focus:outline-none"
-                  placeholder="Escreva a narrativa do vídeo..."
+                  className="w-full p-3 bg-white border border-brand-beige/25 rounded-xl h-28 focus:ring-1 focus:ring-brand-rose focus:outline-none"
+                  placeholder="Escreva a narrativa e demonstração prática do vídeo..."
                 />
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block font-bold text-gray-500 mb-1">Finalização</label>
+                  <label className="block font-bold text-brand-rose-light mb-1">Finalização</label>
                   <textarea
                     value={editedItem.finalizacao || ''}
                     onChange={(e) => handleFieldChange('finalizacao', e.target.value)}
-                    className="w-full p-2.5 bg-white border border-gray-200 rounded-xl h-20 focus:outline-none"
+                    className="w-full p-2.5 bg-white border border-brand-beige/25 rounded-xl h-20 focus:ring-1 focus:ring-brand-rose focus:outline-none"
                   />
                 </div>
                 <div>
-                  <label className="block font-bold text-gray-500 mb-1">CTA (Call to Action)</label>
+                  <label className="block font-bold text-brand-rose-light mb-1">CTA (Chamada de Ação)</label>
                   <textarea
                     value={editedItem.cta || ''}
                     onChange={(e) => handleFieldChange('cta', e.target.value)}
-                    className="w-full p-2.5 bg-white border border-gray-200 rounded-xl h-20 focus:outline-none animate-pulse-once"
+                    className="w-full p-2.5 bg-white border border-brand-beige/25 rounded-xl h-20 focus:ring-1 focus:ring-brand-rose focus:outline-none"
                     placeholder="Ex: Clique no link da bio..."
                   />
                 </div>
@@ -653,13 +653,13 @@ export default function ItemModal({
           {/* Simple Description fields for general databases */}
           {editedItem.resumo !== undefined && (
             <div>
-              <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">
-                📝 Resumo / Conteúdo de Absorção
+              <label className="block text-[9px] font-bold text-brand-rose-light uppercase tracking-widest mb-1.5">
+                📝 Resumo / Notas de Absorção
               </label>
               <textarea
                 value={editedItem.resumo || ''}
                 onChange={(e) => handleFieldChange('resumo', e.target.value)}
-                className="w-full p-3 border border-gray-200 rounded-xl h-28 text-xs focus:ring-1 focus:ring-indigo-500 focus:outline-none"
+                className="w-full p-3 border border-brand-beige/30 rounded-xl h-28 text-xs focus:ring-1 focus:ring-brand-rose focus:outline-none"
                 placeholder="Insira o resumo ou notas..."
               />
             </div>
@@ -667,13 +667,13 @@ export default function ItemModal({
 
           {editedItem.aplicacao !== undefined && (
             <div>
-              <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">
+              <label className="block text-[9px] font-bold text-brand-rose-light uppercase tracking-widest mb-1.5">
                 ⚡ Aplicação Prática / Próxima Ação
               </label>
               <textarea
                 value={editedItem.aplicacao || ''}
                 onChange={(e) => handleFieldChange('aplicacao', e.target.value)}
-                className="w-full p-3 border border-gray-200 rounded-xl h-20 text-xs focus:ring-1 focus:ring-indigo-500 focus:outline-none font-medium text-gray-800"
+                className="w-full p-3 border border-brand-beige/30 rounded-xl h-20 text-xs focus:ring-1 focus:ring-brand-rose focus:outline-none font-medium text-brand-dark"
                 placeholder="Onde ou como você vai aplicar este insight no seu conteúdo?"
               />
             </div>
@@ -681,13 +681,13 @@ export default function ItemModal({
 
           {editedItem.observacoes !== undefined && (
             <div>
-              <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">
+              <label className="block text-[9px] font-bold text-brand-rose-light uppercase tracking-widest mb-1.5">
                 💬 Observações Gerais
               </label>
               <textarea
                 value={editedItem.observacoes || ''}
                 onChange={(e) => handleFieldChange('observacoes', e.target.value)}
-                className="w-full p-3 border border-gray-200 rounded-xl h-20 text-xs focus:ring-1 focus:ring-indigo-500 focus:outline-none"
+                className="w-full p-3 border border-brand-beige/30 rounded-xl h-20 text-xs focus:ring-1 focus:ring-brand-rose focus:outline-none"
                 placeholder="Anotações adicionais do cartão..."
               />
             </div>
@@ -696,16 +696,16 @@ export default function ItemModal({
         </div>
 
         {/* Action button bar */}
-        <div className="px-6 py-4 border-t border-gray-100 flex items-center justify-end space-x-3 bg-gray-50/50 shrink-0">
+        <div className="px-6 py-4 border-t border-brand-beige/25 flex items-center justify-end space-x-3 bg-brand-cream/10 shrink-0">
           <button
             onClick={onClose}
-            className="px-4 py-2 bg-white hover:bg-gray-100 text-gray-600 rounded-xl text-xs font-semibold border border-gray-200 transition-all cursor-pointer"
+            className="px-4 py-2.5 bg-white hover:bg-brand-cream/40 text-brand-rose-light hover:text-brand-rose rounded-xl text-xs font-bold border border-brand-beige/35 transition-all cursor-pointer"
           >
-            Fechar sem salvar
+            Cancelar
           </button>
           <button
             onClick={handleSave}
-            className="flex items-center space-x-1 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-semibold shadow transition-all cursor-pointer"
+            className="flex items-center space-x-1.5 px-4.5 py-2.5 bg-brand-rose hover:bg-brand-rose/95 text-white rounded-xl text-xs font-bold shadow-sm transition-all cursor-pointer"
           >
             <Save className="h-4 w-4" />
             <span>Salvar Registro</span>

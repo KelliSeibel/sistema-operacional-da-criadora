@@ -43,7 +43,7 @@ export default function PageView({ pagina, onPageUpdate }: PageViewProps) {
     const flushList = (key: string) => {
       if (inList && listItems.length > 0) {
         elements.push(
-          <ul key={`list-${key}`} className="list-disc pl-6 my-4 space-y-2 text-gray-700 text-sm">
+          <ul key={`list-${key}`} className="list-disc pl-6 my-4 space-y-2 text-brand-dark/95 text-sm font-medium">
             {listItems}
           </ul>
         );
@@ -58,7 +58,7 @@ export default function PageView({ pagina, onPageUpdate }: PageViewProps) {
       // Horizontal Rule
       if (trimmed === '---') {
         flushList(`hr-${index}`);
-        elements.push(<hr key={`hr-${index}`} className="my-6 border-t border-gray-200" />);
+        elements.push(<hr key={`hr-${index}`} className="my-6 border-t border-brand-beige/20" />);
         return;
       }
 
@@ -66,7 +66,7 @@ export default function PageView({ pagina, onPageUpdate }: PageViewProps) {
       if (trimmed.startsWith('# ')) {
         flushList(`h1-${index}`);
         elements.push(
-          <h1 key={`h1-${index}`} className="text-2xl font-bold text-gray-900 mt-6 mb-3 tracking-tight border-b border-gray-100 pb-2">
+          <h1 key={`h1-${index}`} className="text-2xl font-bold text-brand-dark mt-6 mb-3 tracking-tight border-b border-brand-beige/25 pb-2">
             {trimmed.slice(2)}
           </h1>
         );
@@ -75,7 +75,7 @@ export default function PageView({ pagina, onPageUpdate }: PageViewProps) {
       if (trimmed.startsWith('## ')) {
         flushList(`h2-${index}`);
         elements.push(
-          <h2 key={`h2-${index}`} className="text-xl font-semibold text-gray-800 mt-6 mb-2 tracking-tight">
+          <h2 key={`h2-${index}`} className="text-xl font-bold text-brand-dark mt-6 mb-2 tracking-tight">
             {trimmed.slice(3)}
           </h2>
         );
@@ -84,7 +84,7 @@ export default function PageView({ pagina, onPageUpdate }: PageViewProps) {
       if (trimmed.startsWith('### ')) {
         flushList(`h3-${index}`);
         elements.push(
-          <h3 key={`h3-${index}`} className="text-lg font-medium text-gray-800 mt-4 mb-2">
+          <h3 key={`h3-${index}`} className="text-lg font-bold text-brand-dark mt-4 mb-2">
             {trimmed.slice(4)}
           </h3>
         );
@@ -110,9 +110,9 @@ export default function PageView({ pagina, onPageUpdate }: PageViewProps) {
                   conteudo: newLines.join('\n')
                 });
               }}
-              className="mt-1 h-4.5 w-4.5 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 cursor-pointer"
+              className="mt-1 h-4.5 w-4.5 rounded-lg border-brand-beige text-brand-rose focus:ring-brand-rose cursor-pointer transition-all"
             />
-            <span className={`text-sm ${checked ? 'line-through text-gray-400' : 'text-gray-700'}`}>
+            <span className={`text-sm font-semibold ${checked ? 'line-through text-brand-rose-light/50 font-medium' : 'text-brand-dark/90'}`}>
               {text}
             </span>
           </div>
@@ -129,7 +129,7 @@ export default function PageView({ pagina, onPageUpdate }: PageViewProps) {
         const parts = text.split('**');
         const formattedText = parts.map((part, pIdx) => {
           if (pIdx % 2 === 1) {
-            return <strong key={pIdx} className="font-semibold text-gray-900">{part}</strong>;
+            return <strong key={pIdx} className="font-bold text-brand-rose">{part}</strong>;
           }
           return part;
         });
@@ -153,13 +153,13 @@ export default function PageView({ pagina, onPageUpdate }: PageViewProps) {
         const parts = trimmed.split('**');
         const formattedParagraph = parts.map((part, pIdx) => {
           if (pIdx % 2 === 1) {
-            return <strong key={pIdx} className="font-semibold text-gray-900">{part}</strong>;
+            return <strong key={pIdx} className="font-bold text-brand-rose">{part}</strong>;
           }
           return part;
         });
 
         elements.push(
-          <p key={`p-${index}`} className="text-sm text-gray-600 my-3 leading-relaxed">
+          <p key={`p-${index}`} className="text-sm text-brand-dark/80 my-3 leading-relaxed font-semibold">
             {formattedParagraph}
           </p>
         );
@@ -171,7 +171,7 @@ export default function PageView({ pagina, onPageUpdate }: PageViewProps) {
     // Final flush in case document ends with list
     if (inList && listItems.length > 0) {
       elements.push(
-        <ul key="list-final" className="list-disc pl-6 my-4 space-y-2 text-gray-700 text-sm">
+        <ul key="list-final" className="list-disc pl-6 my-4 space-y-2 text-brand-dark/95 text-sm font-semibold">
           {listItems}
         </ul>
       );
@@ -181,22 +181,22 @@ export default function PageView({ pagina, onPageUpdate }: PageViewProps) {
   };
 
   return (
-    <div className="flex flex-col h-full bg-white select-text scrollbar-thin">
+    <div className="flex flex-col h-full bg-[#F8F5F2] select-text scrollbar-none">
       {/* Page Header Cover */}
-      <div className="h-32 md:h-44 w-full bg-gradient-to-r from-indigo-100 via-rose-100 to-amber-100 relative shrink-0">
-        <div className="absolute inset-0 bg-white/20 backdrop-blur-[1px]" />
-        <div className="absolute -bottom-6 left-4 md:-bottom-8 md:left-12 w-12 h-12 md:w-16 md:h-16 bg-white rounded-xl md:rounded-2xl shadow-md border border-gray-100 flex items-center justify-center text-2xl md:text-3xl">
+      <div className="h-28 md:h-36 w-full bg-gradient-to-tr from-[#C98484]/20 via-[#F1ECE8] to-[#D6A6A6]/20 relative shrink-0">
+        <div className="absolute inset-0 bg-white/10 backdrop-blur-[0.5px]" />
+        <div className="absolute -bottom-6 left-4 md:-bottom-8 md:left-12 w-12 h-12 md:w-16 md:h-16 bg-white rounded-2xl shadow-md border border-brand-beige/25 flex items-center justify-center text-2xl md:text-3xl text-brand-rose">
           {pagina.categoria === 'Manual' ? '📕' : pagina.categoria === 'Checklist' ? '✅' : '⚙️'}
         </div>
       </div>
 
       {/* Control Actions Panel */}
-      <div className="mt-8 md:mt-12 px-4 md:px-12 pb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-b border-gray-100 shrink-0">
+      <div className="mt-8 md:mt-12 px-4 md:px-12 pb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-b border-brand-beige/20 shrink-0">
         <div className="flex items-center space-x-2">
-          <span className="px-2.5 py-0.5 rounded-full text-[10px] md:text-xs font-semibold bg-indigo-50 text-indigo-700 border border-indigo-100">
+          <span className="px-3 py-0.5 rounded-lg text-[10px] md:text-xs font-bold bg-brand-cream text-brand-rose border border-[#C98484]/20">
             {pagina.categoria}
           </span>
-          <span className="text-[10px] md:text-xs text-gray-400">• Central de Conhecimento</span>
+          <span className="text-[10px] md:text-xs text-brand-rose-light font-bold">• Central de Conhecimento</span>
         </div>
 
         <button
@@ -207,10 +207,10 @@ export default function PageView({ pagina, onPageUpdate }: PageViewProps) {
               setIsEditing(true);
             }
           }}
-          className={`flex items-center justify-center space-x-1.5 px-3 py-1.8 rounded-lg text-xs font-medium border transition-all active:scale-95 w-full sm:w-auto cursor-pointer ${
+          className={`flex items-center justify-center space-x-1.5 px-4 py-2 rounded-xl text-xs font-bold border transition-all active:scale-95 w-full sm:w-auto cursor-pointer ${
             isEditing
               ? 'bg-emerald-600 hover:bg-emerald-700 text-white border-emerald-600 shadow-sm'
-              : 'bg-white hover:bg-gray-50 text-gray-700 border-gray-200'
+              : 'bg-white hover:bg-brand-cream/40 text-brand-dark border-brand-beige/35 shadow-sm'
           }`}
         >
           {isEditing ? (
@@ -221,7 +221,7 @@ export default function PageView({ pagina, onPageUpdate }: PageViewProps) {
           ) : (
             <>
               <Edit3 className="h-3.5 w-3.5" />
-              <span>Editar Página</span>
+              <span>Editar Diretrizes</span>
             </>
           )}
         </button>
@@ -232,27 +232,27 @@ export default function PageView({ pagina, onPageUpdate }: PageViewProps) {
         {isEditing ? (
           <div className="space-y-4 h-full flex flex-col">
             <div>
-              <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">
-                Título da Página
+              <label className="block text-[10px] font-bold text-brand-rose-light uppercase tracking-wider mb-1">
+                Título do Manual / Guia
               </label>
               <input
                 type="text"
                 value={editTitle}
                 onChange={(e) => setEditTitle(e.target.value)}
-                className="w-full text-2xl font-bold text-gray-900 border-b border-gray-200 focus:outline-none focus:border-indigo-500 pb-2"
-                placeholder="Insira o título da página..."
+                className="w-full text-xl md:text-2xl font-bold text-brand-dark border-b border-brand-beige/40 focus:outline-none focus:border-brand-rose pb-2"
+                placeholder="Insira o título da diretriz..."
               />
             </div>
 
-            <div className="flex-1 flex flex-col min-h-[350px]">
-              <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">
-                Conteúdo (Formatado em Markdown simples)
+            <div className="flex-grow flex flex-col min-h-[350px]">
+              <label className="block text-[10px] font-bold text-brand-rose-light uppercase tracking-wider mb-1">
+                Conteúdo do Guia (Markdown Simples)
               </label>
               <textarea
                 value={editContent}
                 onChange={(e) => setEditContent(e.target.value)}
-                className="flex-1 w-full p-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 font-mono text-sm leading-relaxed text-gray-700"
-                placeholder="Escreva as diretrizes usando # para títulos, - para listas e - [ ] para checklists..."
+                className="flex-grow w-full p-4.5 bg-white border border-brand-beige/30 rounded-2xl focus:ring-1 focus:ring-brand-rose focus:border-brand-rose font-mono text-xs leading-relaxed text-brand-dark"
+                placeholder="Use # para títulos, - para listas e - [ ] para checklists..."
               />
             </div>
             <div className="flex justify-end space-x-3 pt-2">
@@ -262,24 +262,24 @@ export default function PageView({ pagina, onPageUpdate }: PageViewProps) {
                   setEditContent(pagina.conteudo);
                   setIsEditing(false);
                 }}
-                className="px-4 py-2 text-xs font-semibold text-gray-500 hover:text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-all"
+                className="px-4 py-2 text-xs font-bold text-brand-rose-light bg-brand-cream/60 rounded-xl hover:bg-brand-cream transition-all cursor-pointer"
               >
                 Cancelar
               </button>
               <button
                 onClick={handleSave}
-                className="px-4 py-2 text-xs font-semibold text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 shadow transition-all"
+                className="px-4 py-2 text-xs font-bold text-white bg-brand-rose rounded-xl hover:bg-brand-rose/95 shadow transition-all cursor-pointer"
               >
-                Salvar
+                Salvar Guia
               </button>
             </div>
           </div>
         ) : (
-          <article className="prose max-w-none text-gray-800 font-sans">
-            <h1 className="text-3xl font-extrabold text-gray-950 tracking-tight leading-tight mb-2">
+          <article className="prose max-w-none text-brand-dark font-sans select-text">
+            <h1 className="text-2xl md:text-3xl font-bold text-brand-dark tracking-tight leading-tight mb-2">
               {pagina.titulo}
             </h1>
-            <p className="text-xs text-gray-400 mb-8">
+            <p className="text-xs text-brand-rose-light font-bold mb-8">
               Posicionado na Central de Conhecimento • Última edição salva localmente
             </p>
             <div className="space-y-1">
