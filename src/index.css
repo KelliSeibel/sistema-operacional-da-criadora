@@ -1,111 +1,64 @@
-@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@1,400;1,500;1,600&family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Alex+Brush&family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400..700;1,400..700&family=JetBrains+Mono:wght@400;500&display=swap');
 @import "tailwindcss";
 
 @theme {
-  --font-sans: "Poppins", "Inter", ui-sans-serif, system-ui, sans-serif;
-  --font-serif-italic: "Cormorant Garamond", serif;
-  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
-  
-  --color-brand-rose: #C98484;
-  --color-brand-rose-light: #D6A6A6;
-  --color-brand-nude: #E8D9D5;
-  --color-brand-offwhite: #F8F5F2;
-  --color-brand-cream: #F1ECE8;
-  --color-brand-beige: #D8CFC9;
-  --color-brand-muted: #555555;
-  --color-brand-dark: #2C2C2C;
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-serif: "Georgia", "Playfair Display", serif;
+  --font-cursive: "Alex Brush", cursive;
+  --font-mono: "JetBrains Mono", monospace;
+
+  /* Bento Grid Exact Palette */
+  --color-brand-pink: #C98A92;
+  --color-brand-pink-dark: #B0727A;
+  --color-brand-pink-light: #F2EDE7;
+  --color-brand-nude: #F9F5F0;
+  --color-brand-nude-dark: #B5A48B;
   --color-brand-gold: #D4AF37;
+  --color-brand-offwhite: #FAF9F6;
+  --color-brand-beige: #F9F5F0;
+  --color-brand-gray: #A69D91;
+  --color-brand-gray-light: #E5E1DA;
+  --color-brand-charcoal: #4A4A4A;
+  --color-brand-dark: #2D2D2D;
+
+  --shadow-premium: 0 4px 16px -2px rgba(201, 138, 146, 0.08), 0 2px 6px -1px rgba(0, 0, 0, 0.03);
+  --shadow-premium-hover: 0 12px 28px -4px rgba(201, 138, 146, 0.16), 0 6px 12px -2px rgba(0, 0, 0, 0.04);
 }
 
-@layer utilities {
-  .animate-fade-in {
-    animation: fadeIn 0.15s ease-out forwards;
-  }
-  
-  .animate-slide-in {
-    animation: slideIn 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-  }
-
-  .animate-slide-up {
-    animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-  }
-
-  /* Custom scrollbar styles */
-  .scrollbar-thin::-webkit-scrollbar {
-    width: 6px;
-    height: 6px;
-  }
-  .scrollbar-thin::-webkit-scrollbar-track {
-    background: transparent;
-  }
-  .scrollbar-thin::-webkit-scrollbar-thumb {
-    background: #D8CFC9;
-    border-radius: 9999px;
-  }
-  .scrollbar-thin::-webkit-scrollbar-thumb:hover {
-    background: #C98484;
-  }
-
-  /* Scrollbar none */
-  .scrollbar-none::-webkit-scrollbar {
-    display: none;
-  }
+/* Base resets & custom scrollbar */
+body {
+  background-color: var(--color-brand-offwhite);
+  color: var(--color-brand-charcoal);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
 }
 
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-brand-nude-dark);
+  border-radius: 99px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-brand-pink);
 }
 
-@keyframes slideIn {
-  from {
-    transform: translateX(100%);
-  }
-  to {
-    transform: translateX(0);
-  }
+/* Custom styles for animations & cursives */
+.font-cursive {
+  font-family: var(--font-cursive);
 }
 
-@keyframes slideUp {
-  from {
-    transform: translateY(20px);
-    opacity: 0;
-  }
-  to {
-    transform: translateY(0);
-    opacity: 1;
-  }
+.font-serif {
+  font-family: var(--font-serif);
 }
 
-/* Custom styles for select-text */
-.select-text {
-  user-select: text !important;
-  -webkit-user-select: text !important;
+/* Glassmorphism details */
+.bg-glass {
+  background-color: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(8px);
 }
-
-.select-none {
-  user-select: none !important;
-  -webkit-user-select: none !important;
-}
-
-/* Interactive gold glow effects */
-.gold-glow {
-  box-shadow: 0 4px 20px -2px rgba(201, 132, 132, 0.12);
-}
-
-.gold-glow-hover:hover {
-  box-shadow: 0 10px 25px -5px rgba(201, 132, 132, 0.25);
-  border-color: #C98484;
-}
-
-/* Elegant glassmorphism */
-.glass-card {
-  background: rgba(248, 245, 242, 0.85);
-  backdrop-filter: blur(12px);
-  border: 1px solid rgba(216, 207, 201, 0.5);
-}
-

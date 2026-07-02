@@ -1,6 +1,6 @@
 {
-  "name": "Sistema Operacional da Criadora",
-  "description": "Workspace completo para gerenciamento de projetos, produtos UGC, ideias, roteiros, estudos e organização estratégica do Segundo Cérebro.",
-  "requestFramePermissions": [],
+  "name": "Aurora Creator",
+  "description": "Um cérebro criativo e planejador de conteúdo UGC premium e conectado, desenvolvido sob medida para criadoras de conteúdo.",
+  "requestFramePermissions": ["camera"],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

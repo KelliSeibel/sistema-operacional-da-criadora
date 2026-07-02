@@ -1,28 +1,22 @@
 {
-  "name": "Sistema Operacional da Criadora",
-  "short_name": "Criadora OS",
-  "description": "Workspace completo para gerenciamento de projetos, produtos UGC e organização estratégica.",
+  "name": "Aurora Creator UGC",
+  "short_name": "Aurora",
+  "description": "Seu cérebro e assistente criativo para produção de conteúdo UGC.",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#ffffff",
-  "theme_color": "#6366f1",
+  "background_color": "#FAF9F6",
+  "theme_color": "#C98A92",
   "orientation": "portrait",
   "icons": [
     {
-      "src": "/icon.svg",
-      "sizes": "192x192 512x512",
-      "type": "image/svg+xml",
-      "purpose": "any maskable"
-    },
-    {
-      "src": "/icon.svg",
+      "src": "https://img.icons8.com/fluency/192/000000/aurora.png",
       "sizes": "192x192",
-      "type": "image/svg+xml"
+      "type": "image/png"
     },
     {
-      "src": "/icon.svg",
+      "src": "https://img.icons8.com/fluency/512/000000/aurora.png",
       "sizes": "512x512",
-      "type": "image/svg+xml"
+      "type": "image/png"
     }
   ]
 }

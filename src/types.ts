@@ -1,261 +1,262 @@
-/**
- * @license
- * SPDX-License-Identifier: Apache-2.0
- */
+export type Category =
+  | 'Skincare'
+  | 'Perfumes'
+  | 'Maquiagem'
+  | 'Cabelos'
+  | 'Corpo'
+  | 'Moda'
+  | 'Casa'
+  | 'Tecnologia'
+  | 'Alimentação'
+  | 'Lifestyle'
+  | 'Outros';
 
-export interface Projeto {
+export type ReferenceStatus = 'inspiration' | 'recorded' | 'adapt' | 'favorite';
+
+export type PlatformType = 'tiktok' | 'instagram' | 'pinterest' | 'youtube' | 'facebook' | 'ads' | 'site';
+
+export interface Product {
   id: string;
-  nome: string;
-  categoria: string;
-  objetivo: string;
-  prioridade: 'Alta' | 'Média' | 'Baixa';
-  status: 'Planejado' | 'Em andamento' | 'Concluído' | 'Pausado';
-  dataInicio: string;
-  proximaAcao: string;
-  observacoes: string;
+  name: string;
+  brand: string;
+  category: Category;
+  description: string;
+  emotion: string; // Emoção que vende
+  problemResolved: string; // Problema que resolve
+  transformation: string; // Transformação
+  sensation: string; // Sensação
+  audience: string; // Público
+  benefits: string; // Benefícios
+  objections: string; // Objeções
+  keywords: string[]; // Palavras-chave
+  purchaseDate: string; // Data de compra
+  expiryDate: string; // Data de validade
+  notes: string; // Observações
+  tags: string[];
+  imageUrl: string; // Imagem grande
+  relatedProductIds: string[]; // Produtos relacionados
+  images?: string[]; // Múltiplas fotos do produto
+  storageLocation?: string; // Local onde está armazenado
+  value?: string; // Valor / Preço
+  purchaseLink?: string; // Link para compra
+  differentials?: string; // Diferenciais
 }
 
-export interface ProdutoUGC {
+export interface Reference {
   id: string;
-  nome: string;
-  marca: string;
-  categoria: string;
+  title: string;
+  imageUrl: string; // Imagem de capa
   link: string;
-  fotos: string; // URL or emoji-based visual representation
-  jaGravei: boolean;
-  videosGravados: number;
-  melhorVideo: string;
-  dataGravacao: string;
-  status: 'Disponível' | 'Gravando' | 'Concluído' | 'Aguardando Envio';
-  
-  // Specific internal fields
-  caracteristicas: string;
-  beneficios: string;
-  problemasQueResolve: string;
-  desejosQueDesperta: string;
-  emocoes: string;
-  publicoAlvo: string;
-  objecoes: string;
-  gatilhosMentais: string;
-  ideiasDeVideos: string;
-
-  // Relationships
-  roteirosIds: string[];
-  videosIds: string[];
-  ganchosIds: string[];
-  referenciasIds: string[];
+  notes: string;
+  tags: string[];
+  productId: string; // Produto relacionado
+  category: Category;
+  platform: PlatformType;
+  status: ReferenceStatus;
 }
 
-export interface IdeiaConteudo {
+export type HookCategory =
+  | 'curiosidade'
+  | 'erro'
+  | 'pov'
+  | 'storytelling'
+  | 'asmr'
+  | 'rotina'
+  | 'comparacao'
+  | 'review'
+  | 'unboxing'
+  | 'luxo'
+  | 'elegancia'
+  | 'economia'
+  | 'emocional'
+  | 'autoridade'
+  | 'urgencia';
+
+export interface Hook {
   id: string;
-  titulo: string;
-  categoria:
-    | 'Educação'
-    | 'Storytelling'
-    | 'Imersão Sensorial'
-    | 'POV'
-    | 'ASMR'
-    | 'Comparação'
-    | 'Rotina'
-    | 'Tutorial'
-    | 'Lista'
-    | 'Experiência'
-    | 'Transformação'
-    | 'Teste'
-    | 'Antes e Depois';
-  projetoId: string; // Relates to Projeto
-  produtoId: string; // Relates to ProdutoUGC
-  objetivo: string;
-  plataforma: 'TikTok' | 'Instagram' | 'YouTube Shorts' | 'Pinterest' | 'Outra';
-  formato: 'Reels' | 'Carrossel' | 'Vídeo Longo' | 'Short' | 'TikTok';
-  ganchoId: string; // Relates to Gancho
+  title: string;
+  category: HookCategory;
+  content: string;
+  productIds: string[]; // Ligado a vários produtos
+}
+
+export type SceneType =
+  | 'close'
+  | 'slowmotion'
+  | 'asmr'
+  | 'detalhe'
+  | 'aplicacao'
+  | 'lifestyle'
+  | 'macro'
+  | 'maos'
+  | 'ambiente'
+  | 'luz_natural'
+  | 'luz_artificial';
+
+export interface Scene {
+  id: string;
+  imageUrl: string; // Visual bank scene
+  name: string;
+  description: string;
+  productIds: string[]; // Produtos relacionados
+  type: SceneType;
+  isRecorded: boolean; // Cena já gravada
+}
+
+export interface Idea {
+  id: string;
+  title: string;
+  description: string;
+  productId: string;
+  category: Category;
+  referenceId: string;
+  scriptId: string;
+  hookId: string;
+  sceneId: string;
+  createdAt: string;
+}
+
+export type WorkflowStage =
+  | 'idea'
+  | 'planning'
+  | 'script'
+  | 'recording'
+  | 'editing'
+  | 'review'
+  | 'scheduled'
+  | 'published';
+
+export interface Script {
+  id: string;
+  title: string;
+  productId: string;
+  objective: string;
+  hookId: string;
+  development: string;
   cta: string;
-  dificuldade: 'Fácil' | 'Média' | 'Difícil';
-  tempoEstimado: string;
-  status: 'Ideia' | 'Roteirizando' | 'Gravando' | 'Editando' | 'Pronto' | 'Postado';
-  dataCriacao: string;
-  dataGravacao: string;
-  dataPostagem: string;
-  resultado: string; // views or performance summary
-  observacoes: string;
+  estimatedTime: string; // e.g. "45s"
+  checklist: { id: string; label: string; checked: boolean }[];
+  sceneIds: string[]; // Banco de cenas utilizado
+  referenceIds: string[]; // Referências utilizadas
+  status: WorkflowStage;
+  // Estúdio de Produção suggestions
+  environmentId?: string;
+  equipmentIds?: string[];
+  backgroundId?: string;
+  propIds?: string[];
+  lightingId?: string;
+  videoStyleId?: string;
 }
 
-export interface Roteiro {
+export interface Environment {
   id: string;
-  titulo: string;
-  produtoId: string; // Relates to ProdutoUGC
-  ideiaId: string; // Relates to IdeiaConteudo
-  objetivo: string;
-  tipo: 'UGC Orgânico' | 'UGC Pago (Ad)' | 'Orgânico' | 'Outro';
-  gancho: string;
-  desenvolvimento: string;
-  finalizacao: string;
-  cta: string;
-  tempo: string; // e.g. "30s"
-  status: 'Rascunho' | 'Pronto para Gravar' | 'Gravado' | 'Editando' | 'Concluído';
-  videoGravado: boolean;
-  videoPublicadoId: string; // Relates to VideoPublicado
-  resultado: string;
+  name: string;
+  photo: string;
+  description: string;
+  bestTime: string;
+  lightingType: 'natural' | 'artificial' | 'ambas';
+  naturalLight: string;
+  artificialLight: string;
+  noiseLevel: 'baixo' | 'medio' | 'alto';
+  availableBackground: string;
+  predominantColors: string;
+  notes: string;
+  productIds: string[];
+  scriptIds: string[];
+  sceneIds: string[];
+  ideaIds: string[];
 }
 
-export interface Gancho {
+export interface Equipment {
   id: string;
-  gancho: string;
-  categoria:
-    | 'Curiosidade'
-    | 'Mistério'
-    | 'Meditação'
-    | 'Visualização'
-    | 'Experiência'
-    | 'História'
-    | 'Erro'
-    | 'Choque'
-    | 'Estatística'
-    | 'POV'
-    | 'Humor'
-    | 'Autoridade'
-    | 'Pergunta'
-    | 'Contraste';
-  tipoEmocao: string;
-  objetivo: string;
-  exemplo: string;
-  melhorPara: string;
-  retencaoEsperada: 'Alta' | 'Média' | 'Baixa';
-  jaUtilizei: boolean;
-  funcionou: boolean | 'Parcialmente' | string;
+  name: string;
+  photo: string;
+  category: string;
+  brand: string;
+  purchaseDate: string;
+  condition: 'excelente' | 'bom' | 'desgastado' | 'quebrado';
+  notes: string;
+  productIds: string[];
+  scriptIds: string[];
+  sceneIds: string[];
+  ideaIds: string[];
 }
 
-export interface Referencia {
+export interface LightingConfig {
   id: string;
-  titulo: string;
-  link: string;
-  criador: string;
-  plataforma: string;
-  produtoId: string; // Relates to ProdutoUGC
-  categoria: string;
-  porQueGostei: string;
-  gancho: string;
-  movimentoCamera: string;
-  iluminacao: string;
-  edicao: string;
-  audio: string;
-  cta: string;
-  oQueAdaptar: string;
+  name: string;
+  photo: string;
+  bestTime: string;
+  environmentUsed: string;
+  intensity: string;
+  temperature: string;
+  result: string;
+  notes: string;
+  productIds: string[];
+  scriptIds: string[];
+  sceneIds: string[];
+  ideaIds: string[];
 }
 
-export interface BancoCena {
+export interface Background {
   id: string;
-  nome: string;
-  categoria: string; // "Abrindo embalagem", "B-roll", etc.
-  produtoId: string; // Relates to ProdutoUGC
-  local: string;
-  equipamento: string;
-  descricao: string;
+  name: string;
+  photo: string;
+  predominantColor: string;
+  style: string;
+  productIds: string[];
+  scriptIds: string[];
+  sceneIds: string[];
+  ideaIds: string[];
 }
 
-export interface PsicologiaConsumidor {
+export interface Prop {
   id: string;
-  desejo: string;
-  medo: string;
-  problema: string;
-  sonho: string;
-  objecao: string;
-  gatilhoMental: string;
-  emocao: string;
-  necessidade: string;
-  exemplosAplicacao: string;
-  produtosIds: string[]; // Relates to ProdutoUGC
+  name: string;
+  photo: string;
+  category: string;
+  color: string;
+  notes: string;
+  productIds: string[];
+  scriptIds: string[];
+  sceneIds: string[];
+  ideaIds: string[];
 }
 
-export interface Estudo {
+export interface VideoStyle {
   id: string;
-  tema: string;
-  livroId: string; // Relates to Leitura
-  curso: string;
-  autor: string;
-  resumo: string;
-  insight: string;
-  aplicacao: string;
-  ideiaConteudoId: string; // Relates to IdeiaConteudo
-  status: 'Não iniciado' | 'Em andamento' | 'Concluído';
-  projetosIds: string[]; // Relates to Projeto
+  name: string;
+  description: string;
+  exampleUrl?: string;
+  productIds: string[];
+  scriptIds: string[];
+  sceneIds: string[];
+  ideaIds: string[];
 }
 
-export interface Leitura {
+export interface Planning {
   id: string;
-  livro: string;
-  autor: string;
-  tema: string;
-  capitulo: string;
-  resumo: string;
-  frasesImportantes: string;
-  aplicacao: string;
-  conteudosGeradosIds: string[]; // Relates to IdeiaConteudo
-  videosCriadosIds: string[]; // Relates to VideoPublicado
-  statusLeitura: 'Não iniciado' | 'Lendo' | 'Concluído';
+  scriptId: string;
+  deadline: string;
+  weekday: string;
+  priority: 'baixa' | 'media' | 'alta';
+  estimatedDuration: string;
+  difficulty: 'facil' | 'medio' | 'dificil';
+  energyNeeded: 'baixa' | 'media' | 'alta';
+  location: string;
+  materialsNeeded: string;
+  backlog: string; // Pendências
+  notes: string;
 }
 
-export interface VideoPublicado {
+export interface ChecklistItem {
   id: string;
-  titulo: string;
-  plataforma: 'TikTok' | 'Instagram' | 'YouTube' | 'Outra';
-  projetoId: string; // Relates to Projeto
-  produtoId: string; // Relates to ProdutoUGC
-  data: string;
-  visualizacoes: number;
-  curtidas: number;
-  comentarios: number;
-  compartilhamentos: number;
-  salvamentos: number;
-  retencao: string; // e.g. "45%"
-  resultado: string;
-  licoesAprendidas: string;
+  label: string;
+  checked: boolean;
 }
 
-export interface Meta {
+export interface CustomChecklist {
   id: string;
-  meta: string;
-  projetoId: string; // Relates to Projeto
-  prazo: string;
-  prioridade: 'Alta' | 'Média' | 'Baixa';
-  status: 'Não iniciada' | 'Em andamento' | 'Concluída';
-  resultado: string;
-  proximaAcao: string;
-}
-
-export interface Tarefa {
-  id: string;
-  tarefa: string;
-  projetoId: string; // Relates to Projeto
-  responsavel: string;
-  prioridade: 'Alta' | 'Média' | 'Baixa';
-  prazo: string;
-  status: 'Pendente' | 'Em andamento' | 'Concluída';
-  tempoEstimado: string;
-}
-
-// Fixed Page Definition
-export interface PaginaFixa {
-  id: string;
-  titulo: string;
-  categoria: 'Manual' | 'Checklist' | 'Fluxo' | 'Sistema';
-  conteudo: string; // Markdown / Text content
-}
-
-// Global state structure
-export interface WorkspaceState {
-  projetos: Projeto[];
-  produtosUgc: ProdutoUGC[];
-  ideiasConteudo: IdeiaConteudo[];
-  roteiros: Roteiro[];
-  ganchos: Gancho[];
-  referencias: Referencia[];
-  bancoCenas: BancoCena[];
-  psicologiaConsumidor: PsicologiaConsumidor[];
-  estudos: Estudo[];
-  leituras: Leitura[];
-  videosPublicados: VideoPublicado[];
-  metas: Meta[];
-  tarefas: Tarefa[];
-  paginasFixas: PaginaFixa[];
+  name: string;
+  items: string[];
 }

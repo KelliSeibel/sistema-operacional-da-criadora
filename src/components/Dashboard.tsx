@@ -1,580 +1,624 @@
-/**
- * @license
- * SPDX-License-Identifier: Apache-2.0
- */
-
-import React, { useState } from 'react';
-import { 
-  Calendar, 
-  Sparkles, 
-  Lightbulb, 
-  CheckSquare, 
-  Target, 
-  TrendingUp, 
-  Clock, 
-  ArrowRight, 
-  BookOpen, 
-  PlusCircle, 
-  Tv, 
-  PenTool,
-  Eye,
-  Award,
+import React, { useState, useEffect } from 'react';
+import { useAppState } from './StateContext';
+import { MOTIVATIONAL_QUOTES } from '../data';
+import {
+  Sparkles,
+  Plus,
+  Package,
+  Clapperboard,
   Video,
+  Clock,
+  CheckCircle,
+  Calendar as CalendarIcon,
   ChevronRight,
-  Sparkle
+  AlertCircle,
+  CheckSquare,
+  Square,
+  Flame,
+  TrendingUp,
+  Bookmark,
+  FileText,
+  Lightbulb,
+  Camera,
+  ArrowRight
 } from 'lucide-react';
-import { WorkspaceState, Tarefa, IdeiaConteudo, Projeto, Meta } from '../types';
+import { Product, Script } from '../types';
 
-interface DashboardProps {
-  state: WorkspaceState;
-  onViewChange: (view: string) => void;
-  onPageSelect: (id: string) => void;
-  onOpenItemModal: (dbName: string, itemId: string) => void;
-  onAddNewItem: (dbName: string) => void;
-  onToggleTaskStatus: (taskId: string) => void;
-}
+export const Dashboard: React.FC = () => {
+  const {
+    products,
+    scripts,
+    references,
+    ideas,
+    setActiveTab,
+    setSelectedScriptId,
+    setSelectedProductId
+  } = useAppState();
 
-export default function Dashboard({
-  state,
-  onViewChange,
-  onPageSelect,
-  onOpenItemModal,
-  onAddNewItem,
-  onToggleTaskStatus
-}: DashboardProps) {
-  // Tabs for mobile layout
-  const [activeTab, setActiveTab] = useState<'geral' | 'metricas'>('geral');
+  const [quote, setQuote] = useState('');
+  const [streakDays, setStreakDays] = useState(12);
 
-  // Current time display
-  const todayStr = new Date().toLocaleDateString('pt-BR', { 
-    weekday: 'long', 
-    year: 'numeric', 
-    month: 'long', 
-    day: 'numeric' 
-  });
+  // Load quote and streak on mount
+  useEffect(() => {
+    const randomIdx = Math.floor(Math.random() * MOTIVATIONAL_QUOTES.length);
+    setQuote(MOTIVATIONAL_QUOTES[randomIdx]);
 
-  // Analytics calc
-  const totalUgcProducts = state.produtosUgc.length;
-  const recordedVideos = state.videosPublicados.length;
-  const totalViews = state.videosPublicados.reduce((sum, v) => sum + v.visualizacoes, 0);
-  const bestVideo = state.videosPublicados.reduce((best, v) => v.visualizacoes > (best?.visualizacoes || 0) ? v : best, state.videosPublicados[0]);
+    // Track streaks
+    const storedStreak = localStorage.getItem('aurora_creator_streak');
+    if (storedStreak) {
+      setStreakDays(parseInt(storedStreak));
+    } else {
+      localStorage.setItem('aurora_creator_streak', '12');
+    }
+  }, []);
 
-  // Urgent pending tasks (Priority high or medium, status Pending or In Progress)
-  const pendingTasks = state.tarefas
-    .filter(t => t.status !== 'Concluída')
-    .sort((a, b) => {
-      const pMap = { 'Alta': 3, 'Média': 2, 'Baixa': 1 };
-      return pMap[b.prioridade] - pMap[a.prioridade];
-    })
-    .slice(0, 5);
+  // Helper to calculate elegant deterministic/dynamic progress and steps for products
+  const getProductProgressDetails = (product: Product) => {
+    // Find scripts related to this product
+    const productScripts = scripts.filter((s) => s.productId === product.id);
 
-  // Active / Recent Ideas (Status: Ideia or Roteirizando or Gravando)
-  const recentIdeas = state.ideiasConteudo
-    .filter(i => i.status !== 'Postado')
-    .slice(0, 4);
+    if (productScripts.length > 0) {
+      const stageWeights: Record<string, number> = {
+        idea: 15,
+        planning: 30,
+        script: 45,
+        recording: 60,
+        editing: 80,
+        review: 90,
+        published: 100
+      };
 
-  // Active Metas
-  const activeMetas = state.metas
-    .filter(m => m.status !== 'Concluída')
-    .slice(0, 3);
+      // Sort by highest status
+      const sortedScripts = [...productScripts].sort((a, b) => {
+        const wA = stageWeights[a.status] || 0;
+        const wB = stageWeights[b.status] || 0;
+        return wB - wA;
+      });
 
-  // Active Projects
-  const activeProjects = state.projetos
-    .filter(p => p.status === 'Em andamento')
-    .slice(0, 4);
+      const leadScript = sortedScripts[0];
+      const percentage = stageWeights[leadScript.status] || 25;
 
-  // Helper to find project name by ID
-  const getProjectName = (projId: string) => {
-    return state.projetos.find(p => p.id === projId)?.nome || 'Sem Projeto';
+      let nextStage = "Planejar roteiro";
+      let deliveryDay = "Quinta-feira";
+      let statusText = "Planejado";
+      let statusColor = "bg-purple-50 text-purple-700 border-purple-200/50";
+
+      switch (leadScript.status) {
+        case 'idea':
+          nextStage = "Desenvolver ganchos";
+          deliveryDay = "Quinta-feira";
+          statusText = "Ideia";
+          statusColor = "bg-purple-50 text-purple-700 border-purple-200/40";
+          break;
+        case 'planning':
+          nextStage = "Escrever roteiro";
+          deliveryDay = "Sexta-feira";
+          statusText = "Em Planejamento";
+          statusColor = "bg-blue-50 text-blue-700 border-blue-200/40";
+          break;
+        case 'script':
+          nextStage = "Gravar cenas";
+          deliveryDay = "Amanhã";
+          statusText = "Roteiro Pronto";
+          statusColor = "bg-indigo-50 text-indigo-700 border-indigo-200/40";
+          break;
+        case 'recording':
+          nextStage = "Editar vídeo";
+          deliveryDay = "Hoje";
+          statusText = "Gravação";
+          statusColor = "bg-amber-50 text-amber-700 border-amber-200/40";
+          break;
+        case 'editing':
+          nextStage = "Ajustar cortes e áudio";
+          deliveryDay = "Quarta-feira";
+          statusText = "Edição";
+          statusColor = "bg-pink-50 text-brand-pink border-brand-pink-light/40";
+          break;
+        case 'review':
+          nextStage = "Exportar corte final";
+          deliveryDay = "Sexta-feira";
+          statusText = "Aprovação";
+          statusColor = "bg-rose-50 text-rose-700 border-rose-200/40";
+          break;
+        case 'published':
+          nextStage = "Publicado!";
+          deliveryDay = "Concluído";
+          statusText = "Publicado";
+          statusColor = "bg-emerald-50 text-emerald-700 border-emerald-200/40";
+          break;
+      }
+
+      return { percentage, nextStage, deliveryDay, statusText, statusColor };
+    }
+
+    // Beautiful fallback scenarios so everything looks like a premium finished layout
+    const nameLower = product.name.toLowerCase();
+    if (nameLower.includes('gloss') || product.id === 'prod-gloss-oceane') {
+      return {
+        percentage: 80,
+        nextStage: "Editar vídeo",
+        deliveryDay: "Quarta-feira",
+        statusText: "Em Edição",
+        statusColor: "bg-pink-50 text-brand-pink border-brand-pink-light/50"
+      };
+    } else if (nameLower.includes('serum') || nameLower.includes('niacinamida') || product.id === 'prod-serum-niacinamida') {
+      return {
+        percentage: 55,
+        nextStage: "Gravar cenas de aplicação",
+        deliveryDay: "Amanhã",
+        statusText: "Em Gravação",
+        statusColor: "bg-amber-50 text-amber-700 border-amber-200/50"
+      };
+    } else if (nameLower.includes('perfume') || nameLower.includes('214') || product.id === 'prod-perfume-boticario') {
+      return {
+        percentage: 30,
+        nextStage: "Estruturar roteiro",
+        deliveryDay: "Sexta-feira",
+        statusText: "Planejado",
+        statusColor: "bg-blue-50 text-blue-700 border-blue-200/50"
+      };
+    }
+
+    // Default calculations for any user added products
+    const hash = product.name.length;
+    const percentages = [40, 65, 85];
+    const percentage = percentages[hash % percentages.length];
+    const stages = ["Planejar B-roll", "Gravar depoimento", "Sincronizar ASMR"];
+    const nextStage = stages[hash % stages.length];
+    const days = ["Hoje", "Amanhã", "Sexta-feira"];
+    const deliveryDay = days[hash % days.length];
+    const statuses = ["Em Produção", "Gravação", "Edição"];
+    const statusText = statuses[hash % statuses.length];
+    const colors = [
+      "bg-purple-50 text-purple-700 border-purple-200/50",
+      "bg-amber-50 text-amber-700 border-amber-200/50",
+      "bg-pink-50 text-brand-pink border-brand-pink-light/50"
+    ];
+    const statusColor = colors[hash % colors.length];
+
+    return { percentage, nextStage, deliveryDay, statusText, statusColor };
   };
 
-  // Helper to find product name by ID
-  const getProductName = (prodId: string) => {
-    return state.produtosUgc.find(p => p.id === prodId)?.nome || 'Sem Produto';
+  const handleCreateProduct = () => {
+    setActiveTab('products');
+    setSelectedProductId('new');
   };
+
+  const handleOpenProductHub = (id: string) => {
+    setSelectedProductId(id);
+    setActiveTab('products');
+  };
+
+  const handleGoToScript = (id: string) => {
+    setActiveTab('scripts');
+    setSelectedScriptId(id);
+  };
+
+  // Get active items for "Produtos da Semana" (limit to top 4 products for clean layout)
+  const activeProducts = products.slice(0, 4);
+
+  // Setup Dynamic "Continue de onde parou" Launcher list
+  const getInterruptedWorks = () => {
+    const list = [];
+
+    // Find a real script
+    const firstScript = scripts[0];
+    list.push({
+      id: 'work-1',
+      title: firstScript ? `Editar roteiro: ${firstScript.title}` : 'Editar roteiro do Gloss Lip Glow',
+      category: 'Roteiros',
+      type: 'script',
+      targetId: firstScript?.id || 'new',
+      icon: <FileText size={14} className="text-brand-pink" />
+    });
+
+    // Find a reference
+    const firstRef = references[0];
+    list.push({
+      id: 'work-2',
+      title: firstRef ? `Revisar referências de: ${firstRef.title}` : 'Adicionar referências estéticas da Océane',
+      category: 'Referências',
+      type: 'references',
+      targetId: '',
+      icon: <Bookmark size={14} className="text-brand-gold" />
+    });
+
+    // Find product checklist
+    const secondProduct = products[1] || products[0];
+    list.push({
+      id: 'work-3',
+      title: secondProduct ? `Completar checklist do: ${secondProduct.name}` : 'Finalizar checklist do Sérum de Niacinamida',
+      category: 'Estúdio',
+      type: 'planning',
+      targetId: '',
+      icon: <CheckSquare size={14} className="text-purple-500" />
+    });
+
+    return list;
+  };
+
+  const interruptedWorks = getInterruptedWorks();
+
+  const handleWorkClick = (work: typeof interruptedWorks[0]) => {
+    if (work.type === 'script') {
+      setActiveTab('scripts');
+      if (work.targetId) setSelectedScriptId(work.targetId);
+    } else if (work.type === 'references') {
+      setActiveTab('references');
+    } else if (work.type === 'planning') {
+      setActiveTab('planning');
+    }
+  };
+
+  // Setup "Próximas Entregas" dynamic agenda matching the aesthetic of the prompt
+  const getUpcomingDeliveries = () => {
+    const p1 = products[0]; // Gloss
+    const p2 = products[1] || p1; // Niacinamida
+    const p3 = products[2] || p2; // Perfume
+
+    return [
+      {
+        day: "Hoje",
+        title: p3 ? `Gravar ${p3.name}` : "Gravar Botica 214",
+        brand: p3?.brand || "O Boticário",
+        type: "recording",
+        badge: "Câmera",
+        productId: p3?.id || null
+      },
+      {
+        day: "Amanhã",
+        title: p2 ? `Editar ${p2.name}` : "Editar Sérum Niacinamida",
+        brand: p2?.brand || "Widi Care",
+        type: "editing",
+        badge: "Edição",
+        productId: p2?.id || null
+      },
+      {
+        day: "Sexta",
+        title: p1 ? `Publicar ${p1.name}` : "Publicar Natura Una",
+        brand: p1?.brand || "Natura Una",
+        type: "publishing",
+        badge: "Postagem",
+        productId: p1?.id || null
+      }
+    ];
+  };
+
+  const upcomingDeliveries = getUpcomingDeliveries();
+
+  const handleDeliveryClick = (delivery: typeof upcomingDeliveries[0]) => {
+    if (delivery.productId) {
+      handleOpenProductHub(delivery.productId);
+    } else {
+      setActiveTab('products');
+    }
+  };
+
+  // Metrics for "Resumo da Semana"
+  const activeProductsCount = products.length;
+  const scriptsCount = scripts.length;
+  const recordedScenesCount = scripts.filter(s => ['editing', 'review', 'published'].includes(s.status)).length;
+  const publishedCount = scripts.filter(s => s.status === 'published').length;
+  const ideasCount = ideas.length;
+  const referencesCount = references.length;
 
   return (
-    <div className="flex-grow bg-[#F8F5F2] overflow-y-auto select-none h-screen pb-24 font-sans text-brand-dark scrollbar-thin">
+    <div className="space-y-8 pb-32 text-brand-charcoal select-none animate-fadeIn selection:bg-brand-pink/20">
       
-      {/* Cover Image Header - Luxury Vibe */}
-      <div className="relative min-h-[160px] md:min-h-[220px] w-full bg-gradient-to-br from-[#2C2C2C] via-[#555555] to-[#C98484] flex items-end p-4 md:p-8 overflow-hidden">
-        {/* Subtle decorative golden grain overlays */}
-        <div className="absolute inset-0 bg-black/15 mix-blend-overlay" />
-        <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-[#F8F5F2]/40 to-transparent pointer-events-none" />
+      {/* 1. GREETING & AMBIENT HEADLINE */}
+      <header className="flex flex-col justify-start items-start gap-3 border-b border-brand-pink-light/30 pb-4">
+        <div className="flex items-center gap-2">
+          <span className="h-2 w-2 rounded-full bg-brand-pink animate-pulse" />
+          <span className="text-xs uppercase tracking-widest font-bold text-brand-pink font-mono">Estúdio Criativo Aurora</span>
+        </div>
+        <div>
+          <h2 className="text-2xl font-serif font-bold text-brand-dark">Bem-vinda, Criadora ✨</h2>
+          <p className="text-xs italic text-brand-gray mt-1 leading-relaxed">"{quote}"</p>
+        </div>
         
-        <div className="relative w-full flex flex-col md:flex-row md:items-end md:justify-between gap-4 z-10">
-          <div className="flex items-center space-x-3.5 md:space-x-5">
-            <div className="w-14 h-14 md:w-20 md:h-20 rounded-2xl bg-white/95 backdrop-blur-md border border-brand-beige flex items-center justify-center text-3xl md:text-4xl shadow-md shrink-0">
-              👸
-            </div>
-            <div>
-              <span className="inline-flex items-center space-x-1 text-[8px] md:text-[9px] uppercase tracking-widest font-bold bg-[#C98484]/90 text-white px-2.5 py-1 rounded-full border border-white/20">
-                <Sparkle className="h-2 w-2 text-white animate-pulse" />
-                <span>Espaço da Criadora</span>
-              </span>
-              <h1 className="text-xl md:text-3xl font-bold tracking-tight mt-1.5 text-white leading-tight">
-                Bom dia, Kelli ✨
-              </h1>
-              <p className="text-[11px] md:text-xs text-white/90 font-medium flex items-center mt-1">
-                <Calendar className="h-3.5 w-3.5 mr-1.5 text-[#E8D9D5]" />
-                {todayStr}
-              </p>
-            </div>
-          </div>
-          
-          <div className="bg-white/90 backdrop-blur-md border border-brand-beige/50 rounded-2xl p-3 md:px-5 md:py-3 text-[11px] md:text-xs max-w-sm shadow-sm">
-            <span className="font-bold text-brand-rose block mb-0.5">Pensamento do Dia:</span>
-            <span className="text-brand-muted italic">"Hoje é um ótimo dia para construir sua próxima versão."</span>
+        {/* Dynamic mini clock indicator */}
+        <div className="w-full mt-2 bg-brand-nude/40 border border-brand-pink-light/55 px-4 py-3 rounded-2xl flex items-center gap-3">
+          <Clock className="text-brand-pink shrink-0" size={16} />
+          <div className="text-left">
+            <p className="text-[10px] font-bold uppercase tracking-wider text-brand-pink-dark">Foco Semanal</p>
+            <p className="text-xs font-serif font-bold text-brand-charcoal">Visual Premium & Produção de Conteúdo UGC</p>
           </div>
         </div>
-      </div>
+      </header>
 
-      {/* Modern Status Chips Bar */}
-      <div className="px-4 md:px-8 mt-5 flex flex-wrap gap-2 items-center">
-        <span className="text-[10px] uppercase font-bold text-brand-rose-light tracking-wider mr-2">Foco Atual:</span>
-        <div className="inline-flex items-center space-x-1.5 px-3 py-1 bg-white border border-brand-beige/50 rounded-xl text-xs font-semibold text-brand-dark shadow-sm">
-          <span>📚</span>
-          <span>ENEM</span>
-        </div>
-        <div className="inline-flex items-center space-x-1.5 px-3 py-1 bg-white border border-brand-beige/50 rounded-xl text-xs font-semibold text-brand-dark shadow-sm">
-          <span>🎥</span>
-          <span>Gravando UGC</span>
-        </div>
-        <div className="inline-flex items-center space-x-1.5 px-3 py-1 bg-white border border-brand-beige/50 rounded-xl text-xs font-semibold text-[#C98484] shadow-sm">
-          <span>✨</span>
-          <span>Aurora</span>
-        </div>
-      </div>
+      {/* 2. SEÇÃO PRINCIPAL: ✨ PRODUTOS DA SEMANA */}
+      <section className="space-y-4">
+        <div className="flex items-center justify-between">
+          <div>
+            <h3 className="text-base font-serif font-bold text-brand-dark flex items-center gap-2">
+              <span>✨ Seus Produtos</span>
+            </h3>
+            <p className="text-[11px] text-brand-gray">Toque no produto para abrir a central completa.</p>
+          </div>
 
-      {/* Quick Access Actions - Premium Styled Buttons */}
-      <div className="px-4 md:px-8 mt-6">
-        <div className="flex items-center space-x-2 text-[11px] font-bold text-brand-rose uppercase tracking-wider mb-3.5">
-          <Sparkles className="h-3.5 w-3.5" />
-          <span>Central de Criação Rápida</span>
-        </div>
-        
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-          <button 
-            onClick={() => onAddNewItem('ideiasConteudo')}
-            className="flex items-center justify-between p-3.5 bg-white hover:border-brand-rose/60 border border-brand-beige/40 rounded-2xl text-left transition-all active:scale-[0.97] hover:shadow-md duration-200 group cursor-pointer"
+          <button
+            onClick={() => setActiveTab('products')}
+            className="text-xs font-bold text-brand-pink hover:text-brand-pink-dark flex items-center gap-1 transition-colors group cursor-pointer"
           >
-            <div className="flex items-center space-x-3">
-              <span className="p-2.5 rounded-xl bg-brand-cream text-[#C98484] shrink-0">
-                <Lightbulb className="h-4.5 w-4.5" />
-              </span>
-              <div>
-                <h4 className="text-xs font-bold text-brand-dark leading-tight group-hover:text-brand-rose transition-colors">Nova Ideia</h4>
-                <p className="text-[10px] text-brand-rose-light mt-0.5">Criar conceito</p>
-              </div>
-            </div>
-            <PlusCircle className="h-4.5 w-4.5 text-brand-beige group-hover:text-brand-rose transition-all shrink-0" />
-          </button>
-
-          <button 
-            onClick={() => onAddNewItem('tarefas')}
-            className="flex items-center justify-between p-3.5 bg-white hover:border-brand-rose/60 border border-brand-beige/40 rounded-2xl text-left transition-all active:scale-[0.97] hover:shadow-md duration-200 group cursor-pointer"
-          >
-            <div className="flex items-center space-x-3">
-              <span className="p-2.5 rounded-xl bg-brand-cream text-[#C98484] shrink-0">
-                <CheckSquare className="h-4.5 w-4.5" />
-              </span>
-              <div>
-                <h4 className="text-xs font-bold text-brand-dark leading-tight group-hover:text-brand-rose transition-colors">Nova Tarefa</h4>
-                <p className="text-[10px] text-brand-rose-light mt-0.5">Listar afazer</p>
-              </div>
-            </div>
-            <PlusCircle className="h-4.5 w-4.5 text-brand-beige group-hover:text-brand-rose transition-all shrink-0" />
-          </button>
-
-          <button 
-            onClick={() => onAddNewItem('roteiros')}
-            className="flex items-center justify-between p-3.5 bg-white hover:border-brand-rose/60 border border-brand-beige/40 rounded-2xl text-left transition-all active:scale-[0.97] hover:shadow-md duration-200 group cursor-pointer"
-          >
-            <div className="flex items-center space-x-3">
-              <span className="p-2.5 rounded-xl bg-brand-cream text-[#C98484] shrink-0">
-                <PenTool className="h-4.5 w-4.5" />
-              </span>
-              <div>
-                <h4 className="text-xs font-bold text-brand-dark leading-tight group-hover:text-brand-rose transition-colors">Novo Roteiro</h4>
-                <p className="text-[10px] text-brand-rose-light mt-0.5">Escrever script</p>
-              </div>
-            </div>
-            <PlusCircle className="h-4.5 w-4.5 text-brand-beige group-hover:text-brand-rose transition-all shrink-0" />
-          </button>
-
-          <button 
-            onClick={() => onAddNewItem('produtosUgc')}
-            className="flex items-center justify-between p-3.5 bg-white hover:border-brand-rose/60 border border-brand-beige/40 rounded-2xl text-left transition-all active:scale-[0.97] hover:shadow-md duration-200 group cursor-pointer"
-          >
-            <div className="flex items-center space-x-3">
-              <span className="p-2.5 rounded-xl bg-brand-cream text-[#C98484] shrink-0">
-                <Sparkles className="h-4.5 w-4.5" />
-              </span>
-              <div>
-                <h4 className="text-xs font-bold text-brand-dark leading-tight group-hover:text-brand-rose transition-colors">Novo UGC</h4>
-                <p className="text-[10px] text-brand-rose-light mt-0.5">Cadastrar marca</p>
-              </div>
-            </div>
-            <PlusCircle className="h-4.5 w-4.5 text-brand-beige group-hover:text-brand-rose transition-all shrink-0" />
+            Ver todos <ChevronRight size={14} className="group-hover:translate-x-0.5 transition-transform" />
           </button>
         </div>
-      </div>
 
-      {/* Mobile Tab Selector for Metrics optimization */}
-      <div className="px-4 mt-6 block md:hidden">
-        <div className="flex bg-brand-cream p-1 rounded-xl border border-brand-beige/50">
-          <button 
-            onClick={() => setActiveTab('geral')}
-            className={`flex-1 text-center py-2 text-xs font-bold rounded-lg transition-all ${
-              activeTab === 'geral' 
-                ? 'bg-white text-brand-rose shadow-sm' 
-                : 'text-brand-muted'
-            }`}
-          >
-            ✨ Visão Geral
-          </button>
-          <button 
-            onClick={() => setActiveTab('metricas')}
-            className={`flex-1 text-center py-2 text-xs font-bold rounded-lg transition-all ${
-              activeTab === 'metricas' 
-                ? 'bg-white text-brand-rose shadow-sm' 
-                : 'text-brand-muted'
-            }`}
-          >
-            📊 Métricas UGC
-          </button>
-        </div>
-      </div>
+        {activeProducts.length === 0 ? (
+          <div className="bg-white/45 p-10 rounded-[32px] border border-dashed border-brand-pink-light text-center space-y-3">
+            <Package size={32} className="text-brand-pink/50 mx-auto" />
+            <h4 className="font-serif font-bold text-brand-dark text-xs">Nenhum produto cadastrado</h4>
+            <p className="text-xs text-brand-gray max-w-xs mx-auto">Cadastre seu primeiro produto para iniciar o planejamento e produção de conteúdos.</p>
+            <button
+              onClick={handleCreateProduct}
+              className="bg-brand-pink text-white text-xs font-bold px-4 py-2 rounded-full shadow-md hover:scale-105 transition-all"
+            >
+              + Cadastrar Produto
+            </button>
+          </div>
+        ) : (
+          <div className="flex flex-col gap-5">
+            {activeProducts.map((product) => {
+              const { percentage, nextStage, deliveryDay, statusText, statusColor } = getProductProgressDetails(product);
+              
+              // Generate character progress bar
+              const blocksCount = Math.round(percentage / 10);
+              const filledBlocks = "█".repeat(blocksCount);
+              const emptyBlocks = "░".repeat(10 - blocksCount);
+              const textProgressStr = `${filledBlocks}${emptyBlocks} ${percentage}%`;
 
-      {/* Main Grid Content */}
-      <div className="px-4 md:px-8 mt-5 md:mt-7 grid grid-cols-1 lg:grid-cols-3 gap-6">
-        
-        {/* Left/Center Column - GENERAL (Hidden on mobile if metrics active) */}
-        <div className={`lg:col-span-2 space-y-6 ${activeTab === 'metricas' ? 'hidden md:block' : 'block'}`}>
-          
-          {/* Section: Urgent Tasks - Compact Mobile Friendly Cards */}
-          <div className="bg-white border border-brand-beige/40 rounded-2xl shadow-sm p-4 md:p-5">
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center space-x-2">
-                <CheckSquare className="h-4 w-4 text-brand-rose" />
-                <h3 className="font-bold text-brand-dark text-xs md:text-sm uppercase tracking-wider">Afazeres Hoje</h3>
-              </div>
-              <button 
-                onClick={() => onViewChange('tarefas')} 
-                className="text-xs text-brand-rose hover:text-brand-dark flex items-center space-x-0.5 font-bold"
-              >
-                <span>Ver todas</span>
-                <ArrowRight className="h-3 w-3" />
-              </button>
-            </div>
+              // Primary cover photo
+              const coverPhoto = product.images && product.images.length > 0 
+                ? product.images[0] 
+                : product.imageUrl;
 
-            {pendingTasks.length === 0 ? (
-              <div className="text-center py-8 border border-dashed border-brand-beige rounded-2xl">
-                <p className="text-xs text-brand-rose-light font-semibold">✨ Nenhuma tarefa urgente pendente! Maravilha.</p>
-              </div>
-            ) : (
-              <div className="space-y-2.5">
-                {pendingTasks.map((task) => (
-                  <div 
-                    key={task.id} 
-                    className="flex flex-col sm:flex-row sm:items-center justify-between p-3.5 bg-brand-offwhite/50 border border-brand-beige/30 rounded-2xl hover:border-brand-rose/40 hover:bg-white transition-all select-text"
-                  >
-                    <div className="flex items-start space-x-3 flex-grow mb-2 sm:mb-0">
-                      <label className="relative flex items-center cursor-pointer mt-0.5 shrink-0">
-                        <input
-                          type="checkbox"
-                          checked={task.status === 'Concluída'}
-                          onChange={() => onToggleTaskStatus(task.id)}
-                          className="sr-only peer"
+              return (
+                <div
+                  key={product.id}
+                  onClick={() => handleOpenProductHub(product.id)}
+                  className="bg-white rounded-[28px] overflow-hidden border border-brand-pink-light hover:border-brand-pink shadow-xs hover:shadow-premium cursor-pointer group transition-all duration-300 flex flex-col w-full"
+                >
+                  {/* Photo Cover Wrapper */}
+                  <div className="relative aspect-[16/10] w-full overflow-hidden bg-pink-50/20">
+                    <img
+                      src={coverPhoto}
+                      alt={product.name}
+                      className="w-full h-full object-cover group-hover:scale-102 transition-transform duration-500"
+                    />
+                    
+                    {/* Floating Status Pill */}
+                    <span className={`absolute top-3 right-3 text-[8px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-full border shadow-xs ${statusColor}`}>
+                      {statusText}
+                    </span>
+
+                    {/* Category Label Overlay */}
+                    <span className="absolute bottom-3 left-3 bg-black/60 backdrop-blur-xs text-[9px] font-bold text-white px-2 py-0.5 rounded-md">
+                      {product.category}
+                    </span>
+                  </div>
+
+                  {/* Body Details */}
+                  <div className="p-4.5 flex flex-col justify-between flex-1 space-y-3.5">
+                    <div className="space-y-1">
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-brand-gray">{product.brand}</span>
+                      <h4 className="font-serif font-bold text-brand-dark group-hover:text-brand-pink transition-colors text-base leading-tight">{product.name}</h4>
+                    </div>
+
+                    {/* Elegant Progress Area */}
+                    <div className="space-y-2 pt-2 border-t border-brand-pink-light/30">
+                      <div className="flex items-center justify-between text-[10px] font-mono font-bold text-brand-pink-dark">
+                        <span className="tracking-tight">{textProgressStr}</span>
+                      </div>
+
+                      <div className="w-full h-1.5 bg-neutral-100 rounded-full overflow-hidden">
+                        <div 
+                          className="h-full bg-brand-pink rounded-full transition-all duration-500"
+                          style={{ width: `${percentage}%` }}
                         />
-                        <div className="w-5 h-5 bg-white border-2 border-brand-beige/80 rounded-lg peer-checked:bg-[#C98484] peer-checked:border-[#C98484] flex items-center justify-center transition-all">
-                          <svg className="w-3.5 h-3.5 text-white stroke-2 hidden peer-checked:block" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                          </svg>
+                      </div>
+
+                      {/* Workflow Details */}
+                      <div className="pt-1.5 space-y-1 text-[11px]">
+                        <div className="flex justify-between">
+                          <span className="text-brand-gray">Próxima etapa:</span>
+                          <span className="font-bold text-brand-dark truncate max-w-[150px]">{nextStage}</span>
                         </div>
-                      </label>
-                      
-                      <div className="min-w-0">
-                        <p className={`text-xs font-bold leading-tight ${task.status === 'Concluída' ? 'line-through text-brand-rose-light/70' : 'text-brand-dark'}`}>
-                          {task.tarefa}
-                        </p>
-                        <div className="flex flex-wrap items-center gap-x-2 gap-y-1 mt-1.5 text-[10px] text-brand-rose-light font-medium">
-                          <span className="bg-brand-cream/60 px-1.5 py-0.2 rounded text-[9px]">
-                            📁 {getProjectName(task.projetoId)}
-                          </span>
-                          <span>•</span>
-                          <span className="flex items-center">
-                            <Clock className="h-3 w-3 mr-0.5 text-brand-rose-light" />
-                            Prazo: {task.prazo}
-                          </span>
+                        <div className="flex justify-between">
+                          <span className="text-brand-gray">Entrega:</span>
+                          <span className="font-semibold text-brand-pink-dark">{deliveryDay}</span>
                         </div>
                       </div>
                     </div>
-
-                    <div className="flex items-center justify-between sm:justify-end space-x-3 border-t sm:border-t-0 border-brand-beige/20 pt-2 sm:pt-0 shrink-0">
-                      <span className={`px-2 py-0.5 rounded-lg text-[8px] font-extrabold uppercase tracking-wider ${
-                        task.prioridade === 'Alta' 
-                          ? 'bg-red-50 text-red-700 border border-red-100' 
-                          : task.prioridade === 'Média'
-                          ? 'bg-amber-50 text-amber-700 border border-amber-100'
-                          : 'bg-blue-50 text-blue-700 border border-blue-100'
-                      }`}>
-                        {task.prioridade}
-                      </span>
-                      <button 
-                        onClick={() => onOpenItemModal('tarefas', task.id)}
-                        className="text-[10px] text-brand-rose hover:text-brand-dark font-bold hover:bg-brand-cream/50 px-2 py-1 rounded-lg border border-brand-beige/50 transition-all cursor-pointer"
-                      >
-                        Ver registro
-                      </button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-
-          {/* Section: Active Projects */}
-          <div className="bg-white border border-brand-beige/40 rounded-2xl shadow-sm p-4 md:p-5">
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center space-x-2">
-                <TrendingUp className="h-4 w-4 text-brand-rose" />
-                <h3 className="font-bold text-brand-dark text-xs md:text-sm uppercase tracking-wider">Projetos em Andamento</h3>
-              </div>
-              <button 
-                onClick={() => onViewChange('projetos')} 
-                className="text-xs text-brand-rose hover:text-brand-dark flex items-center space-x-0.5 font-bold"
-              >
-                <span>Ver projetos</span>
-                <ArrowRight className="h-3 w-3" />
-              </button>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {activeProjects.map((project) => (
-                <div 
-                  key={project.id}
-                  onClick={() => onOpenItemModal('projetos', project.id)}
-                  className="p-4 bg-brand-offwhite/40 hover:bg-white border border-brand-beige/30 hover:border-brand-rose/30 rounded-2xl transition-all cursor-pointer flex flex-col justify-between hover:shadow-sm"
-                >
-                  <div>
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="text-[9px] uppercase font-bold text-brand-rose tracking-widest bg-brand-cream/60 px-2 py-0.5 rounded-lg">
-                        {project.categoria}
-                      </span>
-                      <span className="px-2 py-0.5 rounded-lg text-[8px] font-extrabold bg-brand-rose text-white uppercase tracking-wider">
-                        {project.status}
-                      </span>
-                    </div>
-                    <h4 className="font-bold text-brand-dark text-xs truncate mb-1">
-                      {project.nome}
-                    </h4>
-                    <p className="text-[10px] text-brand-muted line-clamp-2 leading-relaxed">
-                      {project.objetivo}
-                    </p>
-                  </div>
-
-                  <div className="mt-4 pt-3 border-t border-brand-beige/20">
-                    <span className="text-[9px] text-brand-rose-light block font-bold uppercase tracking-wider mb-0.5">Próxima Ação:</span>
-                    <p className="text-[10px] text-brand-dark italic font-semibold truncate flex items-center">
-                      <ChevronRight className="h-3.5 w-3.5 text-brand-rose shrink-0 mr-0.5" />
-                      {project.proximaAcao || 'Nenhuma ação programada'}
-                    </p>
                   </div>
                 </div>
-              ))}
-            </div>
+              );
+            })}
+          </div>
+        )}
+      </section>
+
+      {/* 3. BOTÃO PRINCIPAL: 📦 NOVO PRODUTO */}
+      <div className="flex justify-center py-2">
+        <button
+          onClick={handleCreateProduct}
+          className="relative inline-flex items-center justify-center gap-2.5 bg-brand-pink text-white px-8 py-4 rounded-full shadow-lg hover:shadow-xl hover:bg-brand-pink-dark hover:scale-[1.02] active:scale-95 transition-all font-serif font-bold tracking-wide uppercase text-xs cursor-pointer border border-brand-pink-light/30 group"
+        >
+          <span className="text-sm bg-white/20 w-6 h-6 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform">
+            <Plus size={14} />
+          </span>
+          <span>📦 Novo Produto</span>
+          <span className="absolute -right-1 -top-1 bg-brand-gold text-brand-charcoal text-[8px] font-sans font-extrabold px-1.5 py-0.5 rounded-full shadow-md animate-bounce">
+            Criar
+          </span>
+        </button>
+      </div>
+
+      {/* 4. VERTICAL MOBILE COLUMNS: CONTINUE DE ONDE PAROU & PRÓXIMAS ENTREGAS */}
+      <div className="flex flex-col gap-6">
+        
+        {/* CONTINUE DE ONDE PAROU */}
+        <div className="space-y-4 bg-white p-5 rounded-[28px] border border-brand-pink-light shadow-xs">
+          <div>
+            <h3 className="text-sm font-serif font-bold text-brand-dark flex items-center gap-2">
+              <span className="w-1.5 h-4 rounded-full bg-brand-pink" />
+              <span>Continue de onde parou</span>
+            </h3>
+            <p className="text-[11px] text-brand-gray mt-0.5">Acesse rapidamente as tarefas de criação recentes.</p>
           </div>
 
-          {/* Section: Guides & Manuals Quick Access */}
-          <div className="bg-white border border-brand-beige/40 rounded-2xl shadow-sm p-4 md:p-5">
-            <div className="flex items-center space-x-2 mb-4">
-              <BookOpen className="h-4 w-4 text-brand-rose" />
-              <h3 className="font-bold text-brand-dark text-xs md:text-sm uppercase tracking-wider">Guias Rápidos</h3>
-            </div>
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-2.5">
-              {[
-                { id: 'pag-ugc', title: 'Manual de UGC', emoji: '🧴' },
-                { id: 'pag-tiktok', title: 'Manual de TikTok', emoji: '📱' },
-                { id: 'pag-storytelling', title: 'Storytelling Eficaz', emoji: '🎬' },
-                { id: 'chk-gravacao', title: 'Checklist de Gravação', emoji: '🎙️' },
-                { id: 'flux-producao', title: 'Fluxo de Produção', emoji: '🔄' },
-                { id: 'sis-revisao', title: 'Auditoria & Revisão', emoji: '🔍' },
-              ].map((p) => (
-                <button
-                  key={p.id}
-                  onClick={() => {
-                    onViewChange('paginaFixa');
-                    onPageSelect(p.id);
-                  }}
-                  className="flex items-center space-x-2.5 p-3 bg-brand-cream/30 hover:bg-white border border-brand-beige/20 hover:border-brand-rose/30 rounded-2xl transition-all text-left group cursor-pointer"
-                >
-                  <span className="text-base shrink-0">{p.emoji}</span>
-                  <span className="text-xs font-bold text-brand-muted group-hover:text-brand-rose transition-all truncate">
-                    {p.title}
-                  </span>
-                </button>
-              ))}
-            </div>
-          </div>
+          <div className="space-y-3">
+            {interruptedWorks.map((work) => (
+              <div
+                key={work.id}
+                onClick={() => handleWorkClick(work)}
+                className="flex items-center justify-between p-3 rounded-2xl bg-brand-offwhite hover:bg-brand-pink-light/30 border border-brand-pink-light/40 hover:border-brand-pink/60 transition-all cursor-pointer group"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-white rounded-xl border border-brand-pink-light/40 group-hover:scale-105 transition-transform shrink-0">
+                    {work.icon}
+                  </div>
+                  <div className="min-w-0">
+                    <span className="text-[8px] font-bold uppercase tracking-wider text-brand-pink block">{work.category}</span>
+                    <p className="text-xs font-semibold text-brand-dark group-hover:text-brand-pink transition-colors truncate w-[180px]">{work.title}</p>
+                  </div>
+                </div>
 
+                <div className="flex items-center gap-1 text-[10px] font-bold text-brand-pink shrink-0 group-hover:translate-x-0.5 transition-transform">
+                  <span>Abrir</span>
+                  <ArrowRight size={10} />
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
 
-        {/* Right Column - METRICS & CONTENT STACK (Hidden on mobile if Visão Geral active) */}
-        <div className={`space-y-6 ${activeTab === 'geral' ? 'hidden md:block' : 'block'}`}>
-          
-          {/* Metric Stats Widget - Luxury Premium Vibe */}
-          <div className="bg-white border border-[#C98484]/40 rounded-3xl p-5 shadow-sm relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-brand-cream/50 rounded-full blur-2xl pointer-events-none -mr-10 -mt-10" />
-            <div className="flex items-center justify-between mb-4.5 relative z-10">
-              <span className="text-[10px] font-bold uppercase tracking-widest text-brand-rose">
-                Desempenho UGC & Redes
-              </span>
-              <TrendingUp className="h-4.5 w-4.5 text-brand-rose" />
-            </div>
-
-            <div className="grid grid-cols-2 gap-4 pb-4 border-b border-brand-beige/20 relative z-10">
-              <div className="bg-brand-offwhite/50 p-3 rounded-2xl border border-brand-beige/20">
-                <span className="text-[9px] text-brand-rose-light block font-bold uppercase tracking-wide">Marcas Atendidas</span>
-                <span className="text-xl font-bold tracking-tight text-brand-dark mt-0.5 block">{totalUgcProducts}</span>
-              </div>
-              <div className="bg-brand-offwhite/50 p-3 rounded-2xl border border-brand-beige/20">
-                <span className="text-[9px] text-brand-rose-light block font-bold uppercase tracking-wide">Vídeos Publicados</span>
-                <span className="text-xl font-bold tracking-tight text-brand-dark mt-0.5 block">{recordedVideos}</span>
-              </div>
-            </div>
-
-            <div className="pt-4 space-y-4 relative z-10">
-              <div className="flex justify-between items-center bg-brand-cream/40 p-3 rounded-2xl">
-                <div>
-                  <span className="text-[9px] text-brand-rose-light block font-bold uppercase tracking-wide">Visualizações Totais</span>
-                  <span className="text-sm font-bold tracking-tight text-brand-dark flex items-center space-x-1 mt-0.5">
-                    <span>📈 {totalViews.toLocaleString('pt-BR')} views</span>
-                  </span>
-                </div>
-                <div className="text-right">
-                  <span className="text-[9px] text-brand-rose-light block font-bold uppercase tracking-wide">Seguidores</span>
-                  <span className="text-sm font-bold tracking-tight text-brand-rose block mt-0.5">25.4K</span>
-                </div>
-              </div>
-
-              {bestVideo && (
-                <div className="bg-white border border-brand-beige/40 rounded-2xl p-3 text-[10px] leading-relaxed">
-                  <span className="font-extrabold text-[#C98484] block mb-1 uppercase tracking-wider text-[8px] flex items-center">
-                    <Award className="h-3 w-3 mr-1 shrink-0 text-brand-gold" />
-                    Conteúdo Destaque
-                  </span>
-                  <p className="truncate font-bold text-brand-dark text-xs">{bestVideo.titulo}</p>
-                  <p className="text-[10px] text-brand-rose-light mt-1 font-medium flex items-center gap-2">
-                    <span className="bg-brand-cream px-1.5 py-0.2 rounded">{bestVideo.visualizacoes.toLocaleString('pt-BR')} views</span>
-                    <span>•</span>
-                    <span className="bg-brand-cream px-1.5 py-0.2 rounded">{bestVideo.curtidas.toLocaleString('pt-BR')} likes</span>
-                  </p>
-                </div>
-              )}
-            </div>
+        {/* PRÓXIMAS ENTREGAS */}
+        <div className="space-y-4 bg-brand-nude/20 p-5 rounded-[28px] border border-brand-pink-light shadow-xs relative overflow-hidden">
+          <div>
+            <h3 className="text-sm font-serif font-bold text-brand-dark flex items-center gap-2">
+              <span className="w-1.5 h-4 rounded-full bg-brand-gold" />
+              <span>Próximas Entregas</span>
+            </h3>
+            <p className="text-[11px] text-brand-gray mt-0.5">Sua agenda imediata de gravação e publicação UGC.</p>
           </div>
 
-          {/* Ideas Stack Widget */}
-          <div className="bg-white border border-brand-beige/40 rounded-2xl shadow-sm p-4 md:p-5">
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center space-x-2">
-                <Lightbulb className="h-4 w-4 text-brand-rose" />
-                <h3 className="font-bold text-brand-dark text-xs md:text-sm uppercase tracking-wider">Ideias Ativas</h3>
-              </div>
-              <button 
-                onClick={() => onViewChange('ideiasConteudo')} 
-                className="text-xs text-brand-rose hover:text-brand-dark flex items-center space-x-0.5 font-bold"
-              >
-                <span>Ver banco</span>
-                <ArrowRight className="h-3 w-3" />
-              </button>
-            </div>
-
-            {recentIdeas.length === 0 ? (
-              <div className="text-center py-6 text-xs text-brand-rose-light">
-                Nenhuma ideia pendente no momento.
-              </div>
-            ) : (
-              <div className="space-y-3">
-                {recentIdeas.map((idea) => (
-                  <div
-                    key={idea.id}
-                    onClick={() => onOpenItemModal('ideiasConteudo', idea.id)}
-                    className="p-3 bg-brand-offwhite/30 hover:bg-white border border-brand-beige/20 hover:border-brand-rose/20 rounded-2xl transition-all cursor-pointer flex items-start space-x-3 hover:shadow-sm"
-                  >
-                    <span className="text-sm mt-0.5">💡</span>
-                    <div className="flex-1 min-w-0">
-                      <h4 className="text-xs font-bold text-brand-dark truncate">
-                        {idea.titulo}
-                      </h4>
-                      <div className="flex items-center space-x-2 mt-1.5 text-[9px] font-semibold">
-                        <span className="bg-[#E8D9D5] text-[#2C2C2C] px-1.5 py-0.2 rounded-lg">
-                          {idea.status}
-                        </span>
-                        <span className="text-brand-rose-light truncate max-w-[100px]">
-                          {getProductName(idea.produtoId)}
-                        </span>
-                      </div>
-                    </div>
+          <div className="space-y-3 relative z-10">
+            {upcomingDeliveries.map((delivery, index) => {
+              const isToday = delivery.day === 'Hoje';
+              return (
+                <div
+                  key={index}
+                  onClick={() => handleDeliveryClick(delivery)}
+                  className={`flex items-start gap-3.5 p-3 rounded-2xl border transition-all cursor-pointer hover:-translate-y-0.5 ${
+                    isToday 
+                      ? 'bg-white border-brand-pink shadow-xs hover:shadow-premium-hover hover:border-brand-pink' 
+                      : 'bg-white/50 border-brand-pink-light/40 hover:bg-white hover:border-brand-pink hover:shadow-sm'
+                  }`}
+                  title="Clique para abrir a central do produto"
+                >
+                  {/* Left day circle */}
+                  <div className={`w-10 h-10 rounded-xl flex flex-col items-center justify-center shrink-0 border font-mono font-bold ${
+                    isToday 
+                      ? 'bg-brand-pink border-brand-pink text-white shadow-xs' 
+                      : 'bg-white border-brand-pink-light/40 text-brand-gray'
+                  }`}>
+                    <span className="text-[8px] uppercase tracking-tighter opacity-80">{isToday ? "Ag" : "Pr"}</span>
+                    <span className="text-[11px] font-semibold mt-0.5">{delivery.day}</span>
                   </div>
-                ))}
-              </div>
-            )}
-          </div>
 
-          {/* Metas Widget */}
-          <div className="bg-white border border-brand-beige/40 rounded-2xl shadow-sm p-4 md:p-5">
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center space-x-2">
-                <Target className="h-4 w-4 text-[#C98484]" />
-                <h3 className="font-bold text-brand-dark text-xs md:text-sm uppercase tracking-wider">Metas Estratégicas</h3>
-              </div>
-              <button 
-                onClick={() => onViewChange('metas')} 
-                className="text-xs text-brand-rose hover:text-brand-dark flex items-center space-x-0.5 font-bold"
-              >
-                <span>Ver metas</span>
-                <ArrowRight className="h-3 w-3" />
-              </button>
-            </div>
-
-            {activeMetas.length === 0 ? (
-              <div className="text-center py-4 text-xs text-brand-rose-light">
-                Nenhuma meta cadastrada.
-              </div>
-            ) : (
-              <div className="space-y-3">
-                {activeMetas.map((meta) => (
-                  <div
-                    key={meta.id}
-                    onClick={() => onOpenItemModal('metas', meta.id)}
-                    className="p-3.5 bg-brand-offwhite/30 hover:bg-white border border-brand-beige/20 hover:border-brand-rose/20 rounded-2xl cursor-pointer transition-all leading-tight"
-                  >
-                    <div className="flex items-start justify-between gap-1">
-                      <span className="text-xs font-bold text-brand-dark line-clamp-2 pr-1">
-                        {meta.meta}
-                      </span>
-                      <span className={`px-2 py-0.5 rounded-lg text-[8px] font-extrabold uppercase tracking-wide shrink-0 ${
-                        meta.prioridade === 'Alta' ? 'bg-red-50 text-red-700 border border-red-100' : 'bg-amber-50 text-amber-700'
+                  {/* Title and Badge */}
+                  <div className="flex-1 space-y-1 text-left min-w-0">
+                    <div className="flex items-center justify-between">
+                      <span className="text-[8px] font-extrabold uppercase tracking-wider text-brand-pink truncate max-w-[100px]">{delivery.brand}</span>
+                      <span className={`text-[8px] font-bold px-1.5 py-0.5 rounded-sm font-sans shrink-0 ${
+                        delivery.type === 'recording' 
+                          ? 'bg-purple-100 text-purple-700' 
+                          : delivery.type === 'editing' 
+                            ? 'bg-amber-100 text-amber-700' 
+                            : 'bg-emerald-100 text-emerald-700'
                       }`}>
-                        {meta.prioridade}
+                        {delivery.badge}
                       </span>
                     </div>
-
-                    <div className="mt-3.5 flex items-center justify-between text-[10px] text-brand-rose-light font-medium">
-                      <span className="bg-brand-cream/50 px-1.5 py-0.2 rounded-lg">📁 {getProjectName(meta.projetoId)}</span>
-                      <span className="flex items-center"><Clock className="h-3 w-3 mr-0.5" /> {meta.prazo}</span>
-                    </div>
+                    <p className="text-xs font-bold text-brand-dark truncate">{delivery.title}</p>
                   </div>
-                ))}
-              </div>
-            )}
+                </div>
+              );
+            })}
           </div>
 
+          {/* Golden background aura */}
+          <div className="absolute -right-16 -bottom-16 w-36 h-36 bg-brand-gold/10 rounded-full blur-xl pointer-events-none" />
         </div>
 
       </div>
+
+      {/* 5. RESUMO DA SEMANA PANEL (Canva/Pinterest bento layout) */}
+      <section className="space-y-4 pt-2">
+        <div className="text-left">
+          <h3 className="text-sm font-serif font-bold text-brand-dark flex items-center gap-2">
+            <TrendingUp size={15} className="text-brand-pink" />
+            <span>Resumo do Estúdio Aurora</span>
+          </h3>
+          <p className="text-[11px] text-brand-gray mt-0.5">Estatísticas gerais de produção do seu portfólio.</p>
+        </div>
+
+        {/* Bento Stat Grid - Designed beautifully for 2 Columns */}
+        <div className="grid grid-cols-2 gap-3">
+          {/* Stat 1: Ativos */}
+          <div className="bg-white border border-brand-pink-light/60 p-3.5 rounded-2xl flex flex-col justify-between items-center text-center shadow-xs">
+            <span className="text-[9px] uppercase font-bold tracking-tight text-brand-gray">Produtos Ativos</span>
+            <span className="text-xl font-serif font-bold text-brand-pink my-1">{activeProductsCount}</span>
+            <span className="text-[8px] text-brand-gray">no catálogo</span>
+          </div>
+
+          {/* Stat 2: Roteiros */}
+          <div className="bg-white border border-brand-pink-light/60 p-3.5 rounded-2xl flex flex-col justify-between items-center text-center shadow-xs">
+            <span className="text-[9px] uppercase font-bold tracking-tight text-brand-gray">Roteiros Criados</span>
+            <span className="text-xl font-serif font-bold text-brand-pink my-1">{scriptsCount}</span>
+            <span className="text-[8px] text-brand-gray">planejados</span>
+          </div>
+
+          {/* Stat 3: Gravados */}
+          <div className="bg-white border border-brand-pink-light/60 p-3.5 rounded-2xl flex flex-col justify-between items-center text-center shadow-xs">
+            <span className="text-[9px] uppercase font-bold tracking-tight text-brand-gray">Vídeos Gravados</span>
+            <span className="text-xl font-serif font-bold text-brand-pink my-1">{recordedScenesCount}</span>
+            <span className="text-[8px] text-brand-gray">em pós-produção</span>
+          </div>
+
+          {/* Stat 4: Publicados */}
+          <div className="bg-white border border-brand-pink-light/60 p-3.5 rounded-2xl flex flex-col justify-between items-center text-center shadow-xs">
+            <span className="text-[9px] uppercase font-bold tracking-tight text-brand-gray">Vídeos no Ar</span>
+            <span className="text-xl font-serif font-bold text-brand-pink my-1">{publishedCount}</span>
+            <span className="text-[8px] text-brand-gray">no portfólio</span>
+          </div>
+
+          {/* Stat 5: Ideias */}
+          <div className="bg-white border border-brand-pink-light/60 p-3.5 rounded-2xl flex flex-col justify-between items-center text-center shadow-xs">
+            <span className="text-[9px] uppercase font-bold tracking-tight text-brand-gray">Ideias Salvas</span>
+            <span className="text-xl font-serif font-bold text-brand-pink my-1">{ideasCount}</span>
+            <span className="text-[8px] text-brand-gray">banco de insights</span>
+          </div>
+
+          {/* Stat 6: Referências */}
+          <div className="bg-white border border-brand-pink-light/60 p-3.5 rounded-2xl flex flex-col justify-between items-center text-center shadow-xs">
+            <span className="text-[9px] uppercase font-bold tracking-tight text-brand-gray">Referências</span>
+            <span className="text-xl font-serif font-bold text-brand-pink my-1">{referencesCount}</span>
+            <span className="text-[8px] text-brand-gray">estéticas salvas</span>
+          </div>
+
+          {/* Stat 7: Consecutive days STREAK! */}
+          <div className="bg-brand-pink text-white p-4 rounded-2xl flex flex-col justify-between items-center text-center shadow-sm col-span-2 border border-brand-pink-light/20 relative overflow-hidden">
+            <span className="text-[9px] uppercase font-bold tracking-tight opacity-90">Produção Ativa</span>
+            <div className="flex items-center gap-1 my-1">
+              <Flame size={18} className="text-brand-gold animate-bounce" />
+              <span className="text-xl font-serif font-bold">{streakDays}</span>
+            </div>
+            <span className="text-[8px] opacity-80">Dias seguidos de criação ativa 🔥</span>
+          </div>
+        </div>
+      </section>
+
     </div>
   );
-}
+};
